@@ -15,6 +15,7 @@ const EXPECTED_BUNDLED_KEYS = [
   "paperclipai/bundled/quality/qa-acceptance",
   "paperclipai/bundled/software-development/github-pr-workflow",
   "paperclipai/bundled/website-production/website-creative-director",
+  "paperclipai/bundled/website-production/website-deploy-and-verify",
   "paperclipai/bundled/website-production/website-design-and-build",
   "paperclipai/bundled/website-production/website-independent-qa",
   "paperclipai/bundled/website-production/website-truth-and-assets",
@@ -71,6 +72,21 @@ function readFrontmatterDescription(markdown: string): string | null {
 }
 
 describe("shipped skills catalog", () => {
+  it("ships revision-bound website deployment verification", () => {
+    const skill = readFileSync(
+      path.join(
+        REPO_ROOT,
+        "packages/skills-catalog/catalog/bundled/website-production/website-deploy-and-verify/SKILL.md",
+      ),
+      "utf8",
+    );
+
+    expect(skill).toContain("explicit owner approval");
+    expect(skill).toContain("exact QA-passed commit");
+    expect(skill).toContain("Deployment Receipt");
+    expect(skill).toContain("rollback");
+  });
+
   it("ships independent website QA with repair routing", () => {
     const skill = readFileSync(
       path.join(

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "packageName": "@paperclipai/skills-catalog",
   "packageVersion": "0.3.1",
-  "generatedAt": "2026-07-21T21:23:41.134Z",
+  "generatedAt": "2026-07-21T21:24:17.722Z",
   "skills": [
     {
       "id": "paperclipai:bundled:docs:doc-maintenance",
@@ -415,6 +415,42 @@
         }
       ],
       "contentHash": "sha256:07a6d851002c449af992b0c34f1cae54bf50487524384715e81988af4c6d5c64"
+    },
+    {
+      "id": "paperclipai:bundled:website-production:website-deploy-and-verify",
+      "key": "paperclipai/bundled/website-production/website-deploy-and-verify",
+      "kind": "bundled",
+      "category": "website-production",
+      "slug": "website-deploy-and-verify",
+      "name": "Website Deploy and Verify",
+      "description": "Deploy an explicitly approved website revision, verify the exact public result route by route, and produce an auditable receipt with rollback information.",
+      "path": "catalog/bundled/website-production/website-deploy-and-verify",
+      "entrypoint": "SKILL.md",
+      "trustLevel": "markdown_only",
+      "compatibility": "compatible",
+      "defaultInstall": false,
+      "recommendedForRoles": [
+        "engineer",
+        "devops",
+        "qa"
+      ],
+      "requires": [],
+      "tags": [
+        "website",
+        "deployment",
+        "verification",
+        "rollback",
+        "governance"
+      ],
+      "files": [
+        {
+          "path": "SKILL.md",
+          "kind": "skill",
+          "sizeBytes": 1473,
+          "sha256": "3a65db5d0695f4d1f80e88472941de8d2cb0531413171a966e6d604128eb1817"
+        }
+      ],
+      "contentHash": "sha256:b45d7e8931f3644b302e0598278e18b75c86bbf777f25089d04d27a32eabc2e6"
     },
     {
       "id": "paperclipai:bundled:website-production:website-design-and-build",
