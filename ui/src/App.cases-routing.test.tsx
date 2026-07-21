@@ -63,6 +63,16 @@ vi.mock("./components/OnboardingWizardVariant", () => ({
 // Sentinel pages so we can assert *which* route resolved.
 vi.mock("./pages/Cases", () => ({ Cases: () => <div>CASES_LIST_PAGE</div> }));
 vi.mock("./pages/CaseDetail", () => ({ CaseDetail: () => <div>CASE_DETAIL_PAGE</div> }));
+vi.mock("./pages/Pipelines", () => ({
+  Pipelines: () => <div>WORKFLOWS_PAGE</div>,
+  PipelineItemDetail: () => <div>WORKFLOW_ITEM_PAGE</div>,
+  PipelineItemLegacyRedirect: () => <div>WORKFLOW_LEGACY_REDIRECT</div>,
+  ReviewQueue: () => <div>WORKFLOW_REVIEW_QUEUE</div>,
+  Learnings: () => <div>WORKFLOW_LEARNINGS</div>,
+}));
+vi.mock("./pages/PipelineSettings", () => ({
+  PipelineSettings: () => <div>WORKFLOW_SETTINGS_PAGE</div>,
+}));
 
 // CloudAccessGate must fall through to <Outlet/> (authorized w/ company access).
 const mockHealthApi = vi.hoisted(() => ({ get: vi.fn() }));
@@ -166,6 +176,13 @@ describe("App Cases routing (PAP-13002)", () => {
   it("redirects unprefixed /cases/:id to the company-prefixed detail page", async () => {
     const root = await renderAppAt(container, "/cases/PAP-C5");
     await waitForText(container, "CASE_DETAIL_PAGE");
+    expect(container.textContent).not.toContain("No company matches prefix");
+    flushSync(() => root.unmount());
+  }, 20000);
+
+  it("reaches Workflows without an experimental gate", async () => {
+    const root = await renderAppAt(container, "/pipelines");
+    await waitForText(container, "WORKFLOWS_PAGE");
     expect(container.textContent).not.toContain("No company matches prefix");
     flushSync(() => root.unmount());
   }, 20000);
