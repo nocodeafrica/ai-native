@@ -118,6 +118,16 @@ import { queryKeys } from "../lib/queryKeys";
 import { keepPreviousDataForSameQueryTail } from "../lib/query-placeholder-data";
 import { useProjectOrder } from "../hooks/useProjectOrder";
 import { shouldDisableRerunForPermission, type LivenessRetryKind } from "../lib/pipeline-liveness";
+
+export const WORKFLOW_PRODUCT_COPY = {
+  singular: "Workflow",
+  plural: "Workflows",
+  new: "New workflow",
+  create: "Create workflow",
+  empty: "No workflows yet.",
+  search: "Search workflows",
+  settings: "Workflow settings",
+} as const;
 import { cn, formatNumber, relativeTime } from "../lib/utils";
 import { issueStatusText, issueStatusTextDefault } from "../lib/status-colors";
 import { formatBytes } from "../lib/issue-output";
@@ -290,7 +300,7 @@ function retryCleanupItems(plan: PipelineAutomationRetryPlan): Array<{
     {
       id: "retireDirectChildren",
       label: "Retire direct child items",
-      description: "Hide child outputs from normal pipeline boards and parent rollups.",
+      description: "Hide child outputs from normal workflow boards and parent rollups.",
       count: plan.effectCounts.directChildren,
       disabled: plan.effectCounts.directChildren === 0,
     },
@@ -661,12 +671,12 @@ export function PipelinesIndexTable({
     <div className="space-y-4">
       <div className="flex flex-col gap-3 border-y border-border py-4 lg:flex-row lg:items-center lg:justify-between">
         <label className="relative block w-full max-w-md">
-          <span className="sr-only">Search pipelines</span>
+          <span className="sr-only">{WORKFLOW_PRODUCT_COPY.search}</span>
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
-            placeholder="Search pipelines"
+            placeholder={WORKFLOW_PRODUCT_COPY.search}
             className="h-10 pl-9"
           />
         </label>
@@ -732,7 +742,7 @@ export function PipelinesIndexTable({
       </div>
 
       {rows.length === 0 ? (
-        <EmptyState icon={Hexagon} message="No pipelines match your search." />
+        <EmptyState icon={Hexagon} message="No workflows match your search." />
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full min-w-(--sz-780px) border-collapse text-sm">
@@ -854,8 +864,8 @@ function NewPipelineDialog({
       <DialogContent>
         <form onSubmit={submit} className="space-y-4">
           <DialogHeader>
-            <DialogTitle>New pipeline</DialogTitle>
-            <DialogDescription>Name the pipeline and add a short description.</DialogDescription>
+            <DialogTitle>{WORKFLOW_PRODUCT_COPY.new}</DialogTitle>
+            <DialogDescription>Name the workflow and add a short description.</DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             <label className="block space-y-1.5 text-sm font-medium">
@@ -877,7 +887,7 @@ function NewPipelineDialog({
               Cancel
             </Button>
             <Button type="submit" disabled={pending || !name.trim()}>
-              {pending ? "Creating..." : "Create pipeline"}
+              {pending ? "Creating..." : WORKFLOW_PRODUCT_COPY.create}
             </Button>
           </DialogFooter>
         </form>
@@ -905,7 +915,7 @@ function PipelinesIndex() {
   const [viewMode, setViewMode] = useState<PipelineViewMode>("nested");
   const [newPipelineOpen, setNewPipelineOpen] = useState(false);
 
-  useEffect(() => setBreadcrumbs([{ label: "Pipelines" }]), [setBreadcrumbs]);
+  useEffect(() => setBreadcrumbs([{ label: WORKFLOW_PRODUCT_COPY.plural }]), [setBreadcrumbs]);
 
   const pipelinesQuery = useQuery({
     queryKey: selectedCompanyId ? queryKeys.pipelines.list(selectedCompanyId) : ["pipelines", "missing-company"],
@@ -941,7 +951,7 @@ function PipelinesIndex() {
   });
 
   if (!selectedCompanyId) {
-    return <div className="mx-auto max-w-3xl py-10 text-sm text-muted-foreground">Select a company to view pipelines.</div>;
+    return <div className="mx-auto max-w-3xl py-10 text-sm text-muted-foreground">Select a company to view workflows.</div>;
   }
   if (pipelinesQuery.isLoading) return <PageSkeleton />;
 
@@ -953,26 +963,26 @@ function PipelinesIndex() {
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-(--tracking-eyebrow) text-muted-foreground">Work</p>
-          <h1 className="text-2xl font-semibold text-foreground">Pipelines</h1>
+          <h1 className="text-2xl font-semibold text-foreground">{WORKFLOW_PRODUCT_COPY.plural}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {formatNumber(pipelines.length)} pipeline{pipelines.length === 1 ? "" : "s"}. Connected ones are grouped from upstream work into downstream work.
+            {formatNumber(pipelines.length)} workflow{pipelines.length === 1 ? "" : "s"}. Connected ones are grouped from upstream work into downstream work.
           </p>
         </div>
         <Button onClick={() => setNewPipelineOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
-          New pipeline
+          {WORKFLOW_PRODUCT_COPY.new}
         </Button>
       </div>
 
       {pipelinesQuery.error ? (
-        <p className="mb-4 text-sm text-destructive">Could not load pipelines.</p>
+        <p className="mb-4 text-sm text-destructive">Could not load workflows.</p>
       ) : null}
 
       {pipelines.length === 0 && !pipelinesQuery.error ? (
         <EmptyState
           icon={Hexagon}
-          message="No pipelines yet."
-          action="New pipeline"
+          message={WORKFLOW_PRODUCT_COPY.empty}
+          action={WORKFLOW_PRODUCT_COPY.new}
           onAction={() => setNewPipelineOpen(true)}
         />
       ) : (
@@ -994,7 +1004,7 @@ function PipelinesIndex() {
         }}
         onSubmit={(data) => createPipeline.mutate(data)}
         pending={createPipeline.isPending}
-        error={createPipeline.error ? "Could not create the pipeline. Try a different name." : null}
+        error={createPipeline.error ? "Could not create the workflow. Try a different name." : null}
       />
     </div>
   );
@@ -1560,7 +1570,7 @@ function PipelineBoard({ pipelineId }: { pipelineId: string }) {
   );
 
   // Per-stage outbound chip: "Breaks into <target>" on any stage configured to
-  // break work into another pipeline.
+  // break work into another workflow.
   const breakdownTargetByStageId = useMemo(() => {
     const map = new Map<string, { pipelineId: string; name: string }>();
     for (const stage of orderedStages) {
@@ -1568,7 +1578,7 @@ function PipelineBoard({ pipelineId }: { pipelineId: string }) {
       if (breakdown?.targetPipelineId) {
         map.set(stage.id, {
           pipelineId: breakdown.targetPipelineId,
-          name: pipelineNameById.get(breakdown.targetPipelineId) ?? "another pipeline",
+          name: pipelineNameById.get(breakdown.targetPipelineId) ?? "another workflow",
         });
       }
     }
@@ -1691,8 +1701,8 @@ function PipelineBoard({ pipelineId }: { pipelineId: string }) {
 
   useEffect(() => {
     setBreadcrumbs([
-      { label: "Pipelines", href: "/pipelines" },
-      { label: pipeline?.name ?? "Pipeline" },
+      { label: "Workflows", href: "/pipelines" },
+      { label: pipeline?.name ?? "Workflow" },
     ]);
   }, [pipeline?.name, setBreadcrumbs]);
 
@@ -1702,20 +1712,20 @@ function PipelineBoard({ pipelineId }: { pipelineId: string }) {
 
   if (pipelineQuery.isLoading || casesQuery.isLoading) return <PageSkeleton />;
   if (!pipeline) {
-    return <div className="mx-auto max-w-3xl py-10 text-sm text-muted-foreground">Pipeline not found.</div>;
+    return <div className="mx-auto max-w-3xl py-10 text-sm text-muted-foreground">Workflow not found.</div>;
   }
 
   if (orderedStages.length === 0) {
     return (
       <div className="mx-auto max-w-6xl space-y-4 px-6 py-8">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-(--tracking-eyebrow) text-muted-foreground">Pipeline</p>
+          <p className="text-xs font-semibold uppercase tracking-(--tracking-eyebrow) text-muted-foreground">Workflow</p>
           <h1 className="text-2xl font-semibold text-foreground">{pipeline.name}</h1>
-          <p className="text-sm text-muted-foreground">No stages are set up for this pipeline yet.</p>
+          <p className="text-sm text-muted-foreground">No stages are set up for this workflow yet.</p>
         </div>
         <EmptyState
           icon={Hexagon}
-          message="Add stages in pipeline settings to enable the board."
+          message="Add stages in workflow settings to enable the board."
           action="Open settings"
           onAction={() => navigate(`/pipelines/${pipelineId}/settings`)}
         />
@@ -1729,7 +1739,7 @@ function PipelineBoard({ pipelineId }: { pipelineId: string }) {
     <div className="w-full space-y-4 px-6 py-8">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-(--tracking-eyebrow) text-muted-foreground">Pipeline</p>
+          <p className="text-xs font-semibold uppercase tracking-(--tracking-eyebrow) text-muted-foreground">Workflow</p>
           <h1 className="text-2xl font-semibold text-foreground">{pipeline.name}</h1>
           {pipeline.description ? <p className="mt-1 text-sm text-muted-foreground">{pipeline.description}</p> : null}
           <p className="mt-1 text-xs text-muted-foreground">{cases.length} total item{cases.length === 1 ? "" : "s"}</p>
@@ -1767,7 +1777,7 @@ function PipelineBoard({ pipelineId }: { pipelineId: string }) {
             </Link>
           </Button>
           <Button variant="outline" size="icon" asChild>
-            <Link to={`/pipelines/${pipelineId}/settings`} aria-label="Pipeline settings" title="Pipeline settings">
+            <Link to={`/pipelines/${pipelineId}/settings`} aria-label="Workflow settings" title="Workflow settings">
               <Settings className="h-4 w-4" />
             </Link>
           </Button>
@@ -2284,8 +2294,8 @@ export function PipelineItemDetailView({ pipelineId, caseId }: { pipelineId: str
 
   useEffect(() => {
     setBreadcrumbs([
-      { label: "Pipelines", href: "/pipelines" },
-      { label: pipeline.data?.name ?? detail?.pipeline.name ?? "Pipeline", href: `/pipelines/${pipelineId}` },
+      { label: "Workflows", href: "/pipelines" },
+      { label: pipeline.data?.name ?? detail?.pipeline.name ?? "Workflow", href: `/pipelines/${pipelineId}` },
       { label: detail?.case.title ?? "Item" },
     ]);
   }, [detail?.case.title, detail?.pipeline.name, pipeline.data?.name, pipelineId, setBreadcrumbs]);
@@ -2746,7 +2756,7 @@ export function PipelineItemDetailView({ pipelineId, caseId }: { pipelineId: str
   const waitingChildren = getWaitingChildren(childRows);
   const childrenGate = hasChildrenGate(detail.stage);
   // "Break into pieces" rollup: the configured piece noun drives every count
-  // string when this case's stage breaks work into another pipeline.
+  // string when this case's stage breaks work into another workflow.
   const breakdown = readStageBreakdown(detail.stage);
   const pieceCountTotal = childRows.length;
   const pieceCountDone = childRows.filter((row) =>
@@ -2789,7 +2799,7 @@ export function PipelineItemDetailView({ pipelineId, caseId }: { pipelineId: str
       <div className="mb-6 grid gap-5 lg:grid-cols-(--gtc-45) lg:items-start lg:gap-8">
         <div className="min-w-0">
           <div className="mb-2 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-            <Link to="/pipelines" className="hover:text-foreground">Pipelines</Link>
+            <Link to="/pipelines" className="hover:text-foreground">Workflows</Link>
             <ChevronRight className="h-3.5 w-3.5" />
             <Link to={`/pipelines/${pipelineId}`} className="hover:text-foreground">{pipeline.data.name}</Link>
           </div>
@@ -3422,7 +3432,7 @@ export function PipelineItemDetailView({ pipelineId, caseId }: { pipelineId: str
           <DialogHeader>
             <DialogTitle>Remove item</DialogTitle>
             <DialogDescription>
-              This moves the item out of active work. It stays visible in the pipeline history.
+              This moves the item out of active work. It stays visible in the workflow history.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -3706,7 +3716,7 @@ function ReviewDecisionPanel({
               Next in this review queue: <span className="font-medium">{nextItemTitle}</span>
             </p>
           ) : (
-            <p className="text-xs opacity-75">No other item is waiting in this pipeline review queue.</p>
+            <p className="text-xs opacity-75">No other item is waiting in this workflow review queue.</p>
           )}
         </div>
       </div>
@@ -4182,8 +4192,8 @@ function PipelineAddItems({ pipelineId }: { pipelineId: string }) {
 
   useEffect(() => {
     setBreadcrumbs([
-      { label: "Pipelines", href: "/pipelines" },
-      { label: pipeline.data?.name ?? "Pipeline", href: `/pipelines/${pipelineId}` },
+      { label: "Workflows", href: "/pipelines" },
+      { label: pipeline.data?.name ?? "Workflow", href: `/pipelines/${pipelineId}` },
       { label: "Add items" },
     ]);
   }, [pipeline.data?.name, pipelineId, setBreadcrumbs]);
@@ -4220,7 +4230,7 @@ function PipelineAddItems({ pipelineId }: { pipelineId: string }) {
 
   if (pipeline.isLoading || intake.isLoading) return <PageSkeleton />;
   if (!pipeline.data || !intake.data) {
-    return <div className="mx-auto max-w-3xl py-10 text-sm text-muted-foreground">Pipeline not found.</div>;
+    return <div className="mx-auto max-w-3xl py-10 text-sm text-muted-foreground">Workflow not found.</div>;
   }
 
   const firstStageName = intake.data.stageName ?? pipeline.data.stages[0]?.name ?? "first stage";
@@ -4240,7 +4250,7 @@ function PipelineAddItems({ pipelineId }: { pipelineId: string }) {
       <div className="mb-5 flex items-center gap-2 border border-border bg-muted/20 px-3 py-2 text-sm text-muted-foreground">
         <Info className="h-4 w-4 shrink-0" />
         <span>
-          These fields come from <span className="font-medium text-foreground">Pipeline settings -&gt; {firstStageName} stage</span>.
+          These fields come from <span className="font-medium text-foreground">Workflow settings -&gt; {firstStageName} stage</span>.
         </span>
       </div>
 
