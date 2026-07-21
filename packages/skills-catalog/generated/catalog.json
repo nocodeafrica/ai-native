@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "packageName": "@paperclipai/skills-catalog",
   "packageVersion": "0.3.1",
-  "generatedAt": "2026-07-21T21:22:42.602Z",
+  "generatedAt": "2026-07-21T21:23:41.134Z",
   "skills": [
     {
       "id": "paperclipai:bundled:docs:doc-maintenance",
@@ -450,6 +450,42 @@
         }
       ],
       "contentHash": "sha256:3ee98df6194e6e7fc77787e51fb15a5703a63ccea4b9c16ece65e9b2e52cea4b"
+    },
+    {
+      "id": "paperclipai:bundled:website-production:website-independent-qa",
+      "key": "paperclipai/bundled/website-production/website-independent-qa",
+      "kind": "bundled",
+      "category": "website-production",
+      "slug": "website-independent-qa",
+      "name": "Website Independent QA",
+      "description": "Independently audit a website candidate for technical correctness, source fidelity, approved imagery, visual quality, accessibility, and repair routing.",
+      "path": "catalog/bundled/website-production/website-independent-qa",
+      "entrypoint": "SKILL.md",
+      "trustLevel": "markdown_only",
+      "compatibility": "compatible",
+      "defaultInstall": false,
+      "recommendedForRoles": [
+        "qa",
+        "designer",
+        "engineer"
+      ],
+      "requires": [],
+      "tags": [
+        "website",
+        "qa",
+        "accessibility",
+        "visual-review",
+        "repair"
+      ],
+      "files": [
+        {
+          "path": "SKILL.md",
+          "kind": "skill",
+          "sizeBytes": 1551,
+          "sha256": "f4e9277c108025b2d72e06798b4e1230ce42310ebbf6ee998ce8071cc14d7c9b"
+        }
+      ],
+      "contentHash": "sha256:2e0ef1f12e218126ad0d7f95e22c321e06e8c431d0c037f7a68307a8ee358a58"
     },
     {
       "id": "paperclipai:bundled:website-production:website-truth-and-assets",
