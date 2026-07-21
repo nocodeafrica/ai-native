@@ -58,6 +58,10 @@ Tasks have parentage. Every task exists in service of a parent task, all the way
 
 The current issue model includes stable issue identifiers, parent/sub-issues, blockers, a single assignee, comments, issue documents, attachments and work products, and review/approval handoffs. That structure keeps work inspectable by both the board and agents while still allowing agents to decompose work into smaller tasks.
 
+### Workflows
+
+Workflows are repeatable multi-stage journeys built from Paperclip stages, routine-backed agent work, documents, artifacts, and human review gates. They remain control-plane objects: Paperclip coordinates and records the journey while adapters execute the assigned agent work. In the current compatibility layer, Workflow pages use the existing `/pipelines` API and storage contracts internally.
+
 ### Company Skills and Policy
 
 Company skills are shared operating capabilities, not privileged objects by default. Every authenticated agent in a company can create, import, install, edit, update, test, reset, and remove that company's skills unless the company has configured an explicit restriction.
