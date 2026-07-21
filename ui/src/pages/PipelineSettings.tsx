@@ -113,6 +113,17 @@ import {
 } from "../lib/pipeline-breakdown";
 import { getPipelineStageColumnTone } from "../lib/pipeline-stage-presentation";
 
+export const WORKFLOW_SETTINGS_COPY = {
+  updated: "Workflow updated",
+  restored: "Workflow restored",
+  missingCompany: "Select a company to edit workflow settings.",
+  missingSelection: "No workflow selected.",
+  notFound: "Workflow not found.",
+  actions: "Workflow actions",
+  archiveTitle: "Archive workflow",
+  archiveAction: "Archive workflow",
+} as const;
+
 type StageSectionKey = "instructions" | "advanced" | "secrets" | "activity" | "history";
 type ApproverKind = "any_human" | "user" | "agent";
 type EditableStageKind = "working" | "review" | "done" | "cancelled";
@@ -953,22 +964,22 @@ function buildAutomationVariableGroups(input: {
   const pipelineVariables: AutomationVariableOption[] = [
     {
       key: "pipeline_id",
-      label: "Pipeline ID",
-      description: "ID of the pipeline this automation runs in.",
+      label: "Workflow ID",
+      description: "ID of the workflow this automation runs in.",
       example: input.pipeline.id,
       exampleSource: null,
     },
     {
       key: "pipeline_key",
-      label: "Pipeline key",
-      description: "Stable key of the pipeline this automation runs in.",
+      label: "Workflow key",
+      description: "Stable key of the workflow this automation runs in.",
       example: input.pipeline.key,
       exampleSource: null,
     },
     {
       key: "pipeline_name",
-      label: "Pipeline name",
-      description: "Display name of the pipeline this automation runs in.",
+      label: "Workflow name",
+      description: "Display name of the workflow this automation runs in.",
       example: input.pipeline.name,
       exampleSource: null,
     },
@@ -1053,7 +1064,7 @@ function buildAutomationVariableGroups(input: {
     });
   }
   const groups: AutomationVariableGroup[] = [
-    { id: "pipeline", label: "Pipeline and stage", variables: pipelineVariables },
+    { id: "pipeline", label: "Workflow and stage", variables: pipelineVariables },
     { id: "item", label: "Current item", variables: itemVariables },
   ];
   if (fieldVariables.length > 0) {
@@ -1643,7 +1654,7 @@ export function PipelineSettings() {
   useEffect(() => {
     if (!pipeline) return;
     setBreadcrumbs([
-      { label: "Pipelines", href: "/pipelines" },
+      { label: "Workflows", href: "/pipelines" },
       { label: pipeline.name, href: `/pipelines/${pipeline.id}` },
       { label: "Settings" },
     ]);
@@ -2031,7 +2042,7 @@ export function PipelineSettings() {
       if (selectedCompanyId) {
         await queryClient.invalidateQueries({ queryKey: queryKeys.pipelines.list(selectedCompanyId) });
       }
-      pushToast({ title: "Pipeline updated", tone: "success" });
+      pushToast({ title: WORKFLOW_SETTINGS_COPY.updated, tone: "success" });
     },
   });
 
@@ -2064,7 +2075,7 @@ export function PipelineSettings() {
         navigate("/pipelines");
       } else {
         await refreshPipeline();
-        pushToast({ title: "Pipeline restored", tone: "success" });
+        pushToast({ title: WORKFLOW_SETTINGS_COPY.restored, tone: "success" });
       }
     },
   });
@@ -2119,11 +2130,11 @@ export function PipelineSettings() {
   };
 
   if (!selectedCompanyId) {
-    return <EmptyState icon={Hexagon} message="Select a company to edit pipeline settings." />;
+    return <EmptyState icon={Hexagon} message={WORKFLOW_SETTINGS_COPY.missingCompany} />;
   }
 
   if (!pipelineId) {
-    return <EmptyState icon={Hexagon} message="No pipeline selected." />;
+    return <EmptyState icon={Hexagon} message={WORKFLOW_SETTINGS_COPY.missingSelection} />;
   }
 
   if (pipelineQuery.isLoading) {
@@ -2135,7 +2146,7 @@ export function PipelineSettings() {
   }
 
   if (!pipeline) {
-    return <EmptyState icon={Hexagon} message="Pipeline not found." />;
+    return <EmptyState icon={Hexagon} message={WORKFLOW_SETTINGS_COPY.notFound} />;
   }
 
   const isArchived = Boolean(pipeline.archivedAt);
@@ -2336,7 +2347,7 @@ export function PipelineSettings() {
                   }}
                   className="h-10 min-w-0 flex-1 rounded-md border border-input bg-background px-3 text-sm"
                 >
-                  <option value="">Choose a pipeline</option>
+                  <option value="">Choose a workflow</option>
                   {breakdownTargetOptions.map((candidate) => (
                     <option key={candidate.id} value={candidate.id}>{candidate.name}</option>
                   ))}
@@ -2344,8 +2355,8 @@ export function PipelineSettings() {
                 {breakdownTargetPipelineId ? (
                   <Link
                     to={`/pipelines/${breakdownTargetPipelineId}`}
-                    aria-label={`Open ${breakdownTargetPipeline?.name ?? "selected"} pipeline`}
-                    title={`Open ${breakdownTargetPipeline?.name ?? "selected"} pipeline`}
+                    aria-label={`Open ${breakdownTargetPipeline?.name ?? "selected"} workflow`}
+                    title={`Open ${breakdownTargetPipeline?.name ?? "selected"} workflow`}
                     className="ml-2 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     <ArrowUpRight className="h-4 w-4" />
@@ -2353,7 +2364,7 @@ export function PipelineSettings() {
                 ) : null}
               </div>
               {!breakdownTargetPipelineId ? (
-                <p className="text-xs text-muted-foreground">A pipeline in this workspace</p>
+                <p className="text-xs text-muted-foreground">A workflow in this workspace</p>
               ) : null}
             </div>
           </FieldRow>
@@ -2398,7 +2409,7 @@ export function PipelineSettings() {
                   <div className="flex flex-wrap items-center gap-1 text-muted-foreground">
                     <span>Destination validation:</span>
                     <span className="font-medium text-foreground">
-                      {breakdownTargetPipeline?.name ?? "selected pipeline"}
+                      {breakdownTargetPipeline?.name ?? "selected workflow"}
                     </span>
                     {breakdownIntakeStageName ? (
                       <>
@@ -2420,7 +2431,7 @@ export function PipelineSettings() {
                 {breakdownTargetArchived ? (
                   <p className="flex items-center gap-1 text-amber-700 dark:text-amber-300">
                     <Archive className="h-3 w-3 shrink-0" />
-                    This destination pipeline is archived, so its validation fields can't be edited until it's restored.
+                    This destination workflow is archived, so its validation fields can't be edited until it's restored.
                   </p>
                 ) : null}
               </div>
@@ -2477,7 +2488,7 @@ export function PipelineSettings() {
               ) : null}
               {breakdownCarryOverFieldGroups.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  This pipeline and its ancestors do not define any fields that can be carried over yet.
+                  This workflow and its ancestors do not define any fields that can be carried over yet.
                 </p>
               ) : null}
               <p className="text-xs text-muted-foreground">
@@ -2566,7 +2577,7 @@ export function PipelineSettings() {
           </Link>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button type="button" variant="outline" size="icon" className="h-8 w-8" title="Pipeline actions">
+              <Button type="button" variant="outline" size="icon" className="h-8 w-8" title={WORKFLOW_SETTINGS_COPY.actions}>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -2579,7 +2590,7 @@ export function PipelineSettings() {
               ) : (
                 <DropdownMenuItem variant="destructive" onSelect={() => setArchiveDialogOpen(true)}>
                   <Archive className="h-4 w-4" />
-                  Archive pipeline
+                  Archive workflow
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>
@@ -2588,9 +2599,9 @@ export function PipelineSettings() {
         <div className="grid gap-3 md:grid-cols-(--gtc-13) md:items-end">
           <div className="space-y-3">
             <label className="block space-y-1.5 text-sm font-medium">
-              <span className="sr-only">Pipeline name</span>
+              <span className="sr-only">Workflow name</span>
               <Input
-                aria-label="Pipeline name"
+                aria-label="Workflow name"
                 value={pipelineName}
                 onChange={(event) => setPipelineName(event.target.value)}
                 required
@@ -2598,9 +2609,9 @@ export function PipelineSettings() {
               />
             </label>
             <label className="block space-y-1.5 text-sm font-medium">
-              <span className="sr-only">Pipeline description</span>
+              <span className="sr-only">Workflow description</span>
               <Textarea
-                aria-label="Pipeline description"
+                aria-label="Workflow description"
                 value={pipelineDescription}
                 onChange={(event) => setPipelineDescription(event.target.value)}
                 rows={2}
@@ -3313,7 +3324,7 @@ export function PipelineSettings() {
           <DialogHeader>
             <DialogTitle>Delete stage</DialogTitle>
             <DialogDescription>
-              Delete {selectedStage?.name ?? "this stage"} from this pipeline. Connected stage transitions are removed.
+              Delete {selectedStage?.name ?? "this stage"} from this workflow. Connected stage transitions are removed.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
@@ -3373,9 +3384,9 @@ export function PipelineSettings() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Archive pipeline</DialogTitle>
+            <DialogTitle>{WORKFLOW_SETTINGS_COPY.archiveTitle}</DialogTitle>
             <DialogDescription>
-              Archiving hides this pipeline from everyday views. Its stages and items are kept and can be restored later.
+              Archiving hides this workflow from everyday views. Its stages and items are kept and can be restored later.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
@@ -3408,7 +3419,7 @@ export function PipelineSettings() {
               onClick={() => archivePipeline.mutate(true)}
             >
               <Archive className="h-4 w-4" />
-              {archivePipeline.isPending ? "Archiving..." : "Archive pipeline"}
+              {archivePipeline.isPending ? "Archiving..." : WORKFLOW_SETTINGS_COPY.archiveAction}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -6,7 +6,15 @@ import {
   pipelineAutomationTitleTemplate,
   resolvePipelineSettingsFallbackStageId,
   syncPipelineStageAutomationVariables,
+  WORKFLOW_SETTINGS_COPY,
 } from "./PipelineSettings";
+
+describe("workflow settings terminology", () => {
+  it("uses Workflow for every top-level setting action", () => {
+    expect(Object.values(WORKFLOW_SETTINGS_COPY).every((value) => !value.includes("Pipeline"))).toBe(true);
+    expect(WORKFLOW_SETTINGS_COPY.archiveTitle).toBe("Archive workflow");
+  });
+});
 
 const stages = [{ id: "first-stage" }, { id: "break-assets" }];
 
