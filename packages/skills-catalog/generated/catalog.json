@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "packageName": "@paperclipai/skills-catalog",
   "packageVersion": "0.3.1",
-  "generatedAt": "2026-07-15T22:20:53.895Z",
+  "generatedAt": "2026-07-21T21:18:37.183Z",
   "skills": [
     {
       "id": "paperclipai:bundled:docs:doc-maintenance",
@@ -379,6 +379,42 @@
         }
       ],
       "contentHash": "sha256:90f278c89aa0711be150c1cd2456ca25620d02f36995b113ca9837d756a37f6c"
+    },
+    {
+      "id": "paperclipai:bundled:website-production:website-truth-and-assets",
+      "key": "paperclipai/bundled/website-production/website-truth-and-assets",
+      "kind": "bundled",
+      "category": "website-production",
+      "slug": "website-truth-and-assets",
+      "name": "Website Truth and Assets",
+      "description": "Crawl an existing website, preserve source-faithful business facts and brand assets, and build a visually inspected image pool for a governed rebuild.",
+      "path": "catalog/bundled/website-production/website-truth-and-assets",
+      "entrypoint": "SKILL.md",
+      "trustLevel": "markdown_only",
+      "compatibility": "compatible",
+      "defaultInstall": false,
+      "recommendedForRoles": [
+        "researcher",
+        "designer",
+        "engineer"
+      ],
+      "requires": [],
+      "tags": [
+        "website",
+        "crawl",
+        "brand",
+        "images",
+        "provenance"
+      ],
+      "files": [
+        {
+          "path": "SKILL.md",
+          "kind": "skill",
+          "sizeBytes": 2445,
+          "sha256": "042d3ec52bb8a3ee5591da2b2c0a448606b9ed65b414d2348e2ce2b2f8a69351"
+        }
+      ],
+      "contentHash": "sha256:b2f06b4a9defaf56291f4ea04f5c2825a35e71475b5076c2c06ab5a5a6d22b1c"
     },
     {
       "id": "paperclipai:optional:browser:agent-browser",

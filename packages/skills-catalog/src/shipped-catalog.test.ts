@@ -14,6 +14,7 @@ const EXPECTED_BUNDLED_KEYS = [
   "paperclipai/bundled/product/wireframe",
   "paperclipai/bundled/quality/qa-acceptance",
   "paperclipai/bundled/software-development/github-pr-workflow",
+  "paperclipai/bundled/website-production/website-truth-and-assets",
 ];
 
 const EXPECTED_OPTIONAL_KEYS = [
@@ -67,6 +68,22 @@ function readFrontmatterDescription(markdown: string): string | null {
 }
 
 describe("shipped skills catalog", () => {
+  it("ships the website truth and asset evidence contract", () => {
+    const skill = readFileSync(
+      path.join(
+        REPO_ROOT,
+        "packages/skills-catalog/catalog/bundled/website-production/website-truth-and-assets/SKILL.md",
+      ),
+      "utf8",
+    );
+
+    expect(skill).toContain("URL-level provenance");
+    expect(skill).toContain("Visually inspect every candidate image");
+    expect(skill).toContain("Do not invent");
+    expect(skill).toContain("Truth Pack");
+    expect(skill).toContain("image contact sheet");
+  });
+
   it("ships the summarize-status streaming protocol", () => {
     const skill = readFileSync(
       path.join(
