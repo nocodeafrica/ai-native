@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "packageName": "@paperclipai/skills-catalog",
   "packageVersion": "0.3.1",
-  "generatedAt": "2026-07-21T21:20:46.166Z",
+  "generatedAt": "2026-07-21T21:22:42.602Z",
   "skills": [
     {
       "id": "paperclipai:bundled:docs:doc-maintenance",
@@ -415,6 +415,41 @@
         }
       ],
       "contentHash": "sha256:07a6d851002c449af992b0c34f1cae54bf50487524384715e81988af4c6d5c64"
+    },
+    {
+      "id": "paperclipai:bundled:website-production:website-design-and-build",
+      "key": "paperclipai/bundled/website-production/website-design-and-build",
+      "kind": "bundled",
+      "category": "website-production",
+      "slug": "website-design-and-build",
+      "name": "Website Design and Build",
+      "description": "Implement an approved Website Blueprint as a complete responsive multi-page site with exact assets, source-faithful content, and inspectable evidence.",
+      "path": "catalog/bundled/website-production/website-design-and-build",
+      "entrypoint": "SKILL.md",
+      "trustLevel": "markdown_only",
+      "compatibility": "compatible",
+      "defaultInstall": false,
+      "recommendedForRoles": [
+        "engineer",
+        "designer"
+      ],
+      "requires": [],
+      "tags": [
+        "website",
+        "frontend",
+        "implementation",
+        "responsive",
+        "accessibility"
+      ],
+      "files": [
+        {
+          "path": "SKILL.md",
+          "kind": "skill",
+          "sizeBytes": 1535,
+          "sha256": "e07d3e0e5f37e09810f99d55513f7410abbf3ec585fdaf5d54e42c506d41344f"
+        }
+      ],
+      "contentHash": "sha256:3ee98df6194e6e7fc77787e51fb15a5703a63ccea4b9c16ece65e9b2e52cea4b"
     },
     {
       "id": "paperclipai:bundled:website-production:website-truth-and-assets",

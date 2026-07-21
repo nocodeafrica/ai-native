@@ -15,6 +15,7 @@ const EXPECTED_BUNDLED_KEYS = [
   "paperclipai/bundled/quality/qa-acceptance",
   "paperclipai/bundled/software-development/github-pr-workflow",
   "paperclipai/bundled/website-production/website-creative-director",
+  "paperclipai/bundled/website-production/website-design-and-build",
   "paperclipai/bundled/website-production/website-truth-and-assets",
 ];
 
@@ -69,6 +70,22 @@ function readFrontmatterDescription(markdown: string): string | null {
 }
 
 describe("shipped skills catalog", () => {
+  it("ships the blueprint-faithful multi-page build contract", () => {
+    const skill = readFileSync(
+      path.join(
+        REPO_ROOT,
+        "packages/skills-catalog/catalog/bundled/website-production/website-design-and-build/SKILL.md",
+      ),
+      "utf8",
+    );
+
+    expect(skill).toContain("approved Blueprint revision");
+    expect(skill).toContain("multi-page");
+    expect(skill).toContain("real logo");
+    expect(skill).toContain("production asset manifest");
+    expect(skill).toContain("deviation log");
+  });
+
   it("ships one integrated website blueprint contract", () => {
     const skill = readFileSync(
       path.join(
