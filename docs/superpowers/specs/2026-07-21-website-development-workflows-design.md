@@ -1,6 +1,6 @@
 # Website Development Workflows on Paperclip
 
-**Status:** Approved design baseline, awaiting owner review of this written specification
+**Status:** Owner-approved design specification
 
 **Date:** 2026-07-21
 
