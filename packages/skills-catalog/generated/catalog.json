@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "packageName": "@paperclipai/skills-catalog",
   "packageVersion": "0.3.1",
-  "generatedAt": "2026-07-21T21:18:37.183Z",
+  "generatedAt": "2026-07-21T21:20:46.166Z",
   "skills": [
     {
       "id": "paperclipai:bundled:docs:doc-maintenance",
@@ -379,6 +379,42 @@
         }
       ],
       "contentHash": "sha256:90f278c89aa0711be150c1cd2456ca25620d02f36995b113ca9837d756a37f6c"
+    },
+    {
+      "id": "paperclipai:bundled:website-production:website-creative-director",
+      "key": "paperclipai/bundled/website-production/website-creative-director",
+      "kind": "bundled",
+      "category": "website-production",
+      "slug": "website-creative-director",
+      "name": "Website Creative Director",
+      "description": "Turn a source-faithful Truth Pack into one approved Website Blueprint combining IA, complete content, imagery, visual direction, and visual rhythm.",
+      "path": "catalog/bundled/website-production/website-creative-director",
+      "entrypoint": "SKILL.md",
+      "trustLevel": "markdown_only",
+      "compatibility": "compatible",
+      "defaultInstall": false,
+      "recommendedForRoles": [
+        "designer",
+        "product",
+        "creative-director"
+      ],
+      "requires": [],
+      "tags": [
+        "website",
+        "creative-direction",
+        "information-architecture",
+        "content",
+        "images"
+      ],
+      "files": [
+        {
+          "path": "SKILL.md",
+          "kind": "skill",
+          "sizeBytes": 2769,
+          "sha256": "30a68d1cc65e32f4f8bd29110cf9a0b372d47daa6cc9e5a9d136137217b990c5"
+        }
+      ],
+      "contentHash": "sha256:07a6d851002c449af992b0c34f1cae54bf50487524384715e81988af4c6d5c64"
     },
     {
       "id": "paperclipai:bundled:website-production:website-truth-and-assets",
