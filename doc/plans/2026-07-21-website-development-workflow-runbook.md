@@ -116,7 +116,7 @@ After configuration, reload and fetch `GET /api/pipelines/{id}`. Do not call con
 
 | Evidence | Non-secret ID or link | Status |
 |---|---|---|
-| Worktree instance health | pending | not started |
+| Worktree instance health | `codex-workflows`; `http://127.0.0.1:3101/api/health`; status `ok`; branch `codex/workflows`; observed commit `b40b1458` | proven |
 | Company and project | pending owner choice | blocked |
 | Five agent assignments | pending owner choice | blocked |
 | Workspace and provider bindings | pending owner choice | blocked |
