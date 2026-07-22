@@ -48,6 +48,13 @@ function makeCompany(id: string): Company {
     brandColor: null,
     logoAssetId: null,
     logoUrl: null,
+    workspaceBackgroundKind: "preset",
+    workspaceBackgroundPreset: "ainative-ambient",
+    workspaceBackgroundAssetId: null,
+    workspaceBackgroundUrl: null,
+    workspaceBackgroundPosition: "center",
+    workspaceBackgroundPresence: "balanced",
+    workspaceGlassCharacter: "balanced",
     createdAt: new Date(),
     updatedAt: new Date(),
   };

@@ -27,6 +27,7 @@ import { useDialogActions } from "../context/DialogContext";
 import { GeneralSettingsProvider } from "../context/GeneralSettingsContext";
 import { usePanel } from "../context/PanelContext";
 import { useCompany } from "../context/CompanyContext";
+import { useWorkspaceAppearancePreview } from "../context/WorkspaceAppearanceContext";
 import { useSidebar } from "../context/SidebarContext";
 import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts";
 import { useAppsEnabled } from "../hooks/useAppsEnabled";
@@ -44,6 +45,10 @@ import { queryKeys } from "../lib/queryKeys";
 import { scheduleMainContentFocus } from "../lib/main-content-focus";
 import { pinDocumentScrollToZero } from "../lib/pin-document-scroll";
 import { cn } from "../lib/utils";
+import {
+  appearanceFromCompany,
+  resolveWorkspaceAppearance,
+} from "../lib/workspace-appearance";
 import { NotFoundPage } from "../pages/NotFound";
 import { PluginSlotMount, resolveRouteSidebarSlot, usePluginSlots } from "../plugins/slots";
 
@@ -93,6 +98,12 @@ export function Layout() {
     selectionSource,
     setSelectedCompanyId,
   } = useCompany();
+  const { draft: appearanceDraft } = useWorkspaceAppearancePreview();
+  const workspaceAppearance = resolveWorkspaceAppearance(
+    appearanceDraft?.companyId === selectedCompanyId
+      ? appearanceDraft.appearance
+      : appearanceFromCompany(selectedCompany),
+  );
   const {
     companyPrefix,
     pluginRoutePath: matchedPluginRoutePath,
@@ -543,6 +554,9 @@ export function Layout() {
         // working.
         isMobile ? "min-h-dvh overflow-x-clip" : "flex h-dvh flex-col overflow-clip",
       )}
+      style={workspaceAppearance.style}
+      data-background-presence={workspaceAppearance.backgroundPresence}
+      data-glass-character={workspaceAppearance.glassCharacter}
       >
       <div
         className="workspace-backdrop"

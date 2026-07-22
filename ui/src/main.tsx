@@ -14,6 +14,7 @@ import { DialogProvider } from "./context/DialogContext";
 import { EditorAutocompleteProvider } from "./context/EditorAutocompleteContext";
 import { ToastProvider } from "./context/ToastContext";
 import { ThemeProvider } from "./context/ThemeContext";
+import { WorkspaceAppearanceProvider } from "./context/WorkspaceAppearanceContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { initPluginBridge } from "./plugins/bridge-init";
 import { PluginLauncherProvider } from "./plugins/launchers";
@@ -58,6 +59,7 @@ createRoot(document.getElementById("root")!).render(
       <ThemeProvider>
         <BrowserRouter>
           <CompanyProvider>
+            <WorkspaceAppearanceProvider>
             <EditorAutocompleteProvider>
               <ToastProvider>
                 <LiveUpdatesProvider>
@@ -77,6 +79,7 @@ createRoot(document.getElementById("root")!).render(
                 </LiveUpdatesProvider>
               </ToastProvider>
             </EditorAutocompleteProvider>
+            </WorkspaceAppearanceProvider>
           </CompanyProvider>
         </BrowserRouter>
       </ThemeProvider>

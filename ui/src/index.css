@@ -371,6 +371,30 @@
   background: var(--workspace-content-surface);
 }
 
+.workspace-shell[data-background-presence="quiet"] {
+  --workspace-content-surface: color-mix(in oklab, var(--background) 95%, transparent);
+}
+
+.workspace-shell[data-background-presence="balanced"] {
+  --workspace-content-surface: color-mix(in oklab, var(--background) 91%, transparent);
+}
+
+.workspace-shell[data-background-presence="vivid"] {
+  --workspace-content-surface: color-mix(in oklab, var(--background) 80%, transparent);
+}
+
+.workspace-shell[data-glass-character="soft"] {
+  --navigation-instrument-fill: color-mix(in oklab, var(--background) 72%, transparent);
+  --navigation-instrument-blur: 1.55rem;
+  --navigation-instrument-saturation: 1.12;
+}
+
+.workspace-shell[data-glass-character="clear"] {
+  --navigation-instrument-fill: color-mix(in oklab, var(--background) 42%, transparent);
+  --navigation-instrument-blur: 0.85rem;
+  --navigation-instrument-saturation: 1.35;
+}
+
 .navigation-instrument {
   box-sizing: border-box;
   margin: var(--navigation-instrument-inset) 0 var(--navigation-instrument-inset) var(--navigation-instrument-inset);
