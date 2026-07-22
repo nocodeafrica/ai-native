@@ -272,18 +272,18 @@
   --status-task-icon-in_review: #9474f0;  /* deeper than violet-400, reads purple */
   --status-task-icon-done: #34d06f;
   --status-task-icon-cancelled: #9a958a;
-  --workspace-wash: linear-gradient(126deg, oklch(0.09 0.012 260 / 0.76), oklch(0.12 0.018 235 / 0.6));
-  --workspace-vignette: radial-gradient(ellipse at 46% 38%, transparent 8%, oklch(0.03 0.01 250 / 0.72) 100%);
-  --workspace-content-surface: color-mix(in oklab, var(--background) 88%, transparent);
-  --navigation-instrument-fill: oklch(0.12 0.018 250 / 0.68);
+  --workspace-wash: linear-gradient(126deg, oklch(0.09 0.012 260 / 0.52), oklch(0.12 0.018 235 / 0.42));
+  --workspace-vignette: radial-gradient(ellipse at 46% 38%, transparent 8%, oklch(0.03 0.01 250 / 0.52) 100%);
+  --workspace-content-surface: color-mix(in oklab, var(--background) 91%, transparent);
+  --navigation-instrument-fill: oklch(0.12 0.018 250 / 0.56);
   --navigation-instrument-fallback: oklch(0.14 0.018 250);
   --navigation-instrument-edge: oklch(0.92 0.018 230 / 0.2);
   --navigation-instrument-highlight: oklch(0.98 0.012 220 / 0.2);
   --navigation-instrument-shadow: 0 1.5rem 4rem oklch(0.02 0.01 250 / 0.48), inset 0 1px 0 var(--navigation-instrument-highlight);
   --navigation-instrument-overlay-shadow: 0 2rem 5rem oklch(0.02 0.01 250 / 0.68), inset 0 1px 0 var(--navigation-instrument-highlight);
-  --sidebar-nav-hover-material: radial-gradient(circle at 1.5rem 50%, oklch(0.92 0.018 225 / 0.11), transparent 72%);
-  --sidebar-nav-selected-material: linear-gradient(180deg, oklch(0.98 0.012 220 / 0.15), transparent 1px), radial-gradient(circle at 1.5rem 50%, oklch(0.9 0.022 220 / 0.18), transparent 80%);
-  --sidebar-nav-pressed-material: radial-gradient(circle at 1.5rem 50%, oklch(0.82 0.018 225 / 0.12), transparent 64%);
+  --sidebar-nav-hover-material: radial-gradient(ellipse 42% 90% at 1.5rem 50%, oklch(0.94 0.018 225 / 0.12), transparent 76%);
+  --sidebar-nav-selected-material: radial-gradient(ellipse 48% 92% at 1.5rem 50%, oklch(0.94 0.022 220 / 0.2), oklch(0.84 0.018 225 / 0.08) 42%, transparent 78%);
+  --sidebar-nav-pressed-material: radial-gradient(ellipse 40% 86% at 1.5rem 50%, oklch(0.84 0.018 225 / 0.14), transparent 70%);
   --sidebar-nav-focus: oklch(0.88 0.024 220 / 0.76);
 }
 
