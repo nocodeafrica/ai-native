@@ -1,6 +1,6 @@
 # Website Development Workflow Runbook
 
-Status: configuration-ready; waiting at the owner-choice gate. This document records non-secret identifiers and evidence links only. Never put credentials or secret values here.
+Status: configured and durably verified in the isolated `codex-workflows` instance; Wilton Plumbing preview proof is in progress. This document records non-secret identifiers and evidence links only. Never put credentials or secret values here.
 
 ## Purpose
 
@@ -67,11 +67,11 @@ A Blueprint-only revision uses the existing current-stage rerun action. Request 
 
 | Stage | Bundled skill key | Assigned agent ID |
 |---|---|---|
-| Truth and Assets | `paperclipai/bundled/website-production/website-truth-and-assets` | owner choice required |
-| Website Blueprint | `paperclipai/bundled/website-production/website-creative-director` | owner choice required |
-| Design and Build | `paperclipai/bundled/website-production/website-design-and-build` | owner choice required |
-| Independent QA | `paperclipai/bundled/website-production/website-independent-qa` | owner choice required; must differ from builder |
-| Deploy and Live Verify | `paperclipai/bundled/website-production/website-deploy-and-verify` | owner choice required |
+| Truth and Assets | `paperclipai/bundled/website-production/website-truth-and-assets` | `0f5addc6-47dc-4dad-834c-f1374a6c3c96` |
+| Website Blueprint | `paperclipai/bundled/website-production/website-creative-director` | `cc9c213f-21da-469f-a052-1fb2bdb71ff7` |
+| Design and Build | `paperclipai/bundled/website-production/website-design-and-build` | `2c84d154-a9be-49c6-9d53-49a3daa07bd9` |
+| Independent QA | `paperclipai/bundled/website-production/website-independent-qa` | `fc6a3376-a7b8-4a84-b5cf-b7329a1eda82` (different from builder) |
+| Deploy and Live Verify | `paperclipai/bundled/website-production/website-deploy-and-verify` | `8feb4560-b890-4b77-b5b9-74314449f780` |
 
 ## Owner-choice gate
 
@@ -116,15 +116,15 @@ After configuration, reload and fetch `GET /api/pipelines/{id}`. Do not call con
 
 | Evidence | Non-secret ID or link | Status |
 |---|---|---|
-| Worktree instance health | `codex-workflows`; `http://127.0.0.1:3101/api/health`; status `ok`; branch `codex/workflows`; observed commit `b40b1458` | proven |
-| Company and project | pending owner choice | blocked |
-| Five agent assignments | pending owner choice | blocked |
-| Workspace and provider bindings | pending owner choice | blocked |
-| Installed skill records | pending configuration | not started |
-| Workflow configuration response | pending configuration | not started |
-| Reloaded persistence proof | pending configuration | not started |
+| Worktree instance health | `codex-workflows`; `http://127.0.0.1:3101/api/health`; status `ok`; branch `codex/workflows`; observed commit `54c6f06c` | proven |
+| Company and project | Horizon Labs `de263ea8-c521-44ec-a96b-4f43c53cb334`; Onboarding `2c0db6c8-c93f-4426-b2bf-6778731c41ba` | proven from active port-3100 clone |
+| Five agent assignments | IDs recorded in Stage skill bindings; Claude Opus 4.8; QA and builder are distinct agents | proven |
+| Workspace and provider bindings | isolated managed project workspace; shared-workspace preference; Pexels and Pixabay authorized; preview-only; no public deployment authority | proven for preview boundary |
+| Installed skill records | `4808a27c-5049-4422-9a9a-20f32000857d`, `8cb9fadd-0acd-4d35-aa12-8ef0a6d2ca78`, `6df739db-7c86-4318-9f9e-20da3c99ca55`, `f2732210-bb53-4f5a-8e68-76affb1a03b1`, `c965e800-c387-4120-9e8f-e875cd3bc605` | proven |
+| Workflow configuration response | Website Development `f48d28c4-19d1-4ba3-b3d0-87357c372c8f`; seven stages; ten transitions; five routines; two human gates | proven |
+| Reloaded persistence proof | `GET /api/pipelines/f48d28c4-19d1-4ba3-b3d0-87357c372c8f`; health `ok: true`, warnings `[]` | proven |
 | Approval and stale-review proof | pending controlled run | not started |
 | Build-repair proof | pending controlled run | not started |
 | Blueprint-revision proof | pending controlled run | not started |
-| Real preview journey | pending source URL and owner choices | blocked |
+| Real preview journey | source `https://wiltonplumbing.co.za/`; preview-only | in progress |
 | Public Deployment Receipt | pending separate explicit approval | blocked |
