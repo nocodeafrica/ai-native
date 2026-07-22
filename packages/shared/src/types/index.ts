@@ -523,6 +523,7 @@ export type {
 export type {
   CompactIssue,
   Issue,
+  IssueLinkedWorkflowCaseSummary,
   IssueWorkMode,
   IssueAssigneeAdapterOverrides,
   IssueBlockerDiagnosticFlag,

@@ -233,6 +233,7 @@ async function listIssueLinkedCases(db: Db, companyId: string, issueId: string) 
       eq(pipelineCaseIssueLinks.issueId, issueId),
       eq(pipelineCases.companyId, companyId),
       eq(pipelines.companyId, companyId),
+      isNull(pipelineCaseIssueLinks.retiredAt),
     ));
   return rows.map((row) => ({
     id: row.case.id,

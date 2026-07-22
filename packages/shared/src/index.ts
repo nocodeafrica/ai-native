@@ -809,6 +809,7 @@ export type {
   ExternalObjectSummaryItem,
   CompactIssue,
   Issue,
+  IssueLinkedWorkflowCaseSummary,
   IssueAssigneeAdapterOverrides,
   IssueBlockerDiagnosticFlag,
   IssueBlockerDiagnosticIssueSummary,

@@ -15,6 +15,7 @@ import {
   heartbeatRuns,
   instanceSettings,
   issueComments,
+  issueThreadInteractions,
   issues,
   pipelineAutomationExecutions,
   pipelineCaseBlockers,
@@ -75,6 +76,7 @@ describeEmbeddedPostgres("pipeline routes", () => {
     await db.delete(pipelineDocuments);
     await db.delete(documentRevisions);
     await db.delete(documents);
+    await db.delete(issueThreadInteractions);
     await db.delete(issueComments);
     await db.delete(activityLog);
     await db.delete(routineRuns);
@@ -288,6 +290,17 @@ describeEmbeddedPostgres("pipeline routes", () => {
     const issueDetail = await http.get(`/api/issues/${manualIssue[0]!.id}`).expect(200);
     expect(issueDetail.body.linkedCases).toHaveLength(1);
     expect(issueDetail.body.linkedCases[0].id).toBe(blocked.body.case.id);
+
+    await db
+      .update(pipelineCaseIssueLinks)
+      .set({ retiredAt: new Date(), retiredReason: "automation_retry" })
+      .where(eq(pipelineCaseIssueLinks.id, workLink.body.id));
+    const issueDetailAfterRetirement = await http.get(`/api/issues/${manualIssue[0]!.id}`).expect(200);
+    expect(issueDetailAfterRetirement.body.linkedCases).toEqual([]);
+    await db
+      .update(pipelineCaseIssueLinks)
+      .set({ retiredAt: null, retiredReason: null })
+      .where(eq(pipelineCaseIssueLinks.id, workLink.body.id));
     await http.delete(`/api/cases/${blocked.body.case.id}/issue-links/${workLink.body.id}`).expect(200);
 
     const [routine] = await db.insert(routines).values({ companyId: company.id, title: "Routine" }).returning();
@@ -960,6 +973,143 @@ describeEmbeddedPostgres("pipeline routes", () => {
 
     expect(res.status).toBe(403);
     expect(res.body.code).toBe("review_required");
+  });
+
+  it("keeps generic confirmations non-authoritative for linked review tasks", async () => {
+    const company = await seedCompany();
+    const http = request(app(boardActor));
+    const automationAgent = await seedAutomationAgent(company.id);
+    const pipelineRes = await http
+      .post(`/api/companies/${company.id}/pipelines`)
+      .send({
+        key: "review-confirmation-boundary",
+        name: "Review confirmation boundary",
+        stages: [
+          { key: "work", name: "Work", kind: "working", position: 100 },
+          {
+            key: "review",
+            name: "Review",
+            kind: "review",
+            position: 200,
+            config: {
+              approveToStageKey: "deploy",
+              rejectToStageKey: "cancelled",
+              requestChangesToStageKey: "work",
+            },
+          },
+          {
+            key: "deploy",
+            name: "Deploy and verify",
+            kind: "review",
+            position: 300,
+            config: {
+              approveToStageKey: "done",
+              rejectToStageKey: "cancelled",
+              requestChangesToStageKey: "work",
+            },
+          },
+          { key: "done", name: "Done", kind: "done", position: 900 },
+          { key: "cancelled", name: "Cancelled", kind: "cancelled", position: 1000 },
+        ],
+      })
+      .expect(201);
+    const deployStage = pipelineRes.body.stages.find((stage: { key: string }) => stage.key === "deploy");
+    await http
+      .patch(`/api/pipelines/${pipelineRes.body.id}/stages/${deployStage.id}`)
+      .send({
+        config: {
+          approveToStageKey: "done",
+          rejectToStageKey: "cancelled",
+          requestChangesToStageKey: "work",
+          automation: {
+            assigneeAgentId: automationAgent.id,
+            instructionsBody: "Deploy the reviewed work and attach the verification evidence.",
+          },
+        },
+      })
+      .expect(200);
+    const caseRes = await http
+      .post(`/api/pipelines/${pipelineRes.body.id}/cases`)
+      .send({ caseKey: "review-boundary", title: "Review boundary" })
+      .expect(201);
+    await http
+      .post(`/api/cases/${caseRes.body.case.id}/transition`)
+      .send({ toStageKey: "review", expectedVersion: 1 })
+      .expect(200);
+
+    const [reviewTask] = await db.insert(issues).values({
+      companyId: company.id,
+      title: "Review the result",
+      status: "done",
+      priority: "medium",
+    }).returning();
+    await db.insert(pipelineCaseIssueLinks).values({
+      companyId: company.id,
+      caseId: caseRes.body.case.id,
+      issueId: reviewTask!.id,
+      role: "automation",
+    });
+
+    const interaction = await http
+      .post(`/api/issues/${reviewTask!.id}/interactions`)
+      .send({
+        kind: "request_confirmation",
+        continuationPolicy: "none",
+        payload: {
+          version: 1,
+          prompt: "Approve QA and advance the Workflow?",
+          acceptLabel: "Approve and advance",
+        },
+      })
+      .expect(201);
+    await http
+      .post(`/api/issues/${reviewTask!.id}/interactions/${interaction.body.id}/accept`)
+      .send({})
+      .expect(200);
+
+    const afterGenericConfirmation = await http.get(`/api/cases/${caseRes.body.case.id}`).expect(200);
+    expect(afterGenericConfirmation.body.stage.key).toBe("review");
+    expect(afterGenericConfirmation.body.case.version).toBe(2);
+
+    const approved = await http
+      .post(`/api/cases/${caseRes.body.case.id}/review`)
+      .send({ decision: "approve", expectedVersion: 2 })
+      .expect(200);
+    const afterCanonicalReview = await http.get(`/api/cases/${caseRes.body.case.id}`).expect(200);
+    expect(afterCanonicalReview.body.stage.key).toBe("deploy");
+    expect(afterCanonicalReview.body.case.version).toBe(3);
+    expect(approved.body.automationExecution.status).toBe("succeeded");
+
+    await http
+      .post(`/api/cases/${caseRes.body.case.id}/review`)
+      .send({ decision: "approve", expectedVersion: 2 })
+      .expect(409);
+    const automationExecutions = await db
+      .select()
+      .from(pipelineAutomationExecutions)
+      .where(eq(pipelineAutomationExecutions.caseId, caseRes.body.case.id));
+    expect(automationExecutions).toHaveLength(1);
+
+    await db
+      .update(issues)
+      .set({ status: "done" })
+      .where(eq(issues.id, approved.body.automationExecution.execution.executionIssueId));
+    const afterAutomationTaskDone = await http.get(`/api/cases/${caseRes.body.case.id}`).expect(200);
+    expect(afterAutomationTaskDone.body.stage.key).toBe("deploy");
+    expect(afterAutomationTaskDone.body.case.version).toBe(3);
+
+    await http
+      .post(`/api/cases/${caseRes.body.case.id}/review`)
+      .send({ decision: "approve", expectedVersion: 3 })
+      .expect(200);
+    const afterFinalHumanReview = await http.get(`/api/cases/${caseRes.body.case.id}`).expect(200);
+    expect(afterFinalHumanReview.body.stage.key).toBe("done");
+    expect(afterFinalHumanReview.body.case.version).toBe(4);
+    const executionsAfterFinalReview = await db
+      .select()
+      .from(pipelineAutomationExecutions)
+      .where(eq(pipelineAutomationExecutions.caseId, caseRes.body.case.id));
+    expect(executionsAfterFinalReview).toHaveLength(1);
   });
 
   it("validates review stage config on create and update", async () => {

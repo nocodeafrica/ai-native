@@ -69,6 +69,11 @@ const mockProjectsApi = vi.hoisted(() => ({
   list: vi.fn(),
 }));
 
+const mockPipelinesApi = vi.hoisted(() => ({
+  getCase: vi.fn(),
+  reviewCase: vi.fn(),
+}));
+
 const mockInstanceSettingsApi = vi.hoisted(() => ({
   getGeneral: vi.fn(),
   getExperimental: vi.fn(),
@@ -132,6 +137,10 @@ vi.mock("../api/auth", () => ({
 
 vi.mock("../api/projects", () => ({
   projectsApi: mockProjectsApi,
+}));
+
+vi.mock("../api/pipelines", () => ({
+  pipelinesApi: mockPipelinesApi,
 }));
 
 vi.mock("../api/instanceSettings", () => ({
@@ -980,6 +989,9 @@ describe("IssueDetail", () => {
     mockAccessApi.listUserDirectory.mockResolvedValue({ users: [] });
     mockAuthApi.getSession.mockResolvedValue({ session: null, user: null });
     mockProjectsApi.list.mockResolvedValue([]);
+    mockPipelinesApi.getCase.mockReset();
+    mockPipelinesApi.reviewCase.mockReset();
+    mockPipelinesApi.reviewCase.mockResolvedValue({});
     mockInstanceSettingsApi.getGeneral.mockResolvedValue({
       keyboardShortcuts: false,
       feedbackDataSharingPreference: "prompt",
@@ -1034,6 +1046,80 @@ describe("IssueDetail", () => {
         String(call[0]).includes("React has detected a change in the order of Hooks"),
       ),
     ).toBe(false);
+  });
+
+  it("shows the canonical Workflow review on a completed linked automation task", async () => {
+    mockIssuesApi.get.mockResolvedValue(createIssue({
+      status: "done",
+      linkedCases: [{
+        id: "case-1",
+        caseKey: "wilton",
+        title: "Wilton Plumbing website",
+        status: "open",
+        role: "automation",
+        pipeline: { id: "workflow-1", key: "website-development", name: "Website Development" },
+        stage: { id: "stage-qa", key: "independent_qa", name: "Independent QA", kind: "review" },
+      }],
+    }));
+    mockPipelinesApi.getCase.mockResolvedValue({
+      case: {
+        id: "case-1",
+        pipelineId: "workflow-1",
+        stageId: "stage-qa",
+        title: "Wilton Plumbing website",
+        version: 4,
+        terminalKind: null,
+      },
+      stage: {
+        id: "stage-qa",
+        pipelineId: "workflow-1",
+        key: "independent_qa",
+        name: "Independent QA",
+        kind: "review",
+        position: 400,
+        config: {
+          approveToStageKey: "deploy_verify",
+          requestChangesToStageKey: "design_build",
+          rejectToStageKey: "website_blueprint",
+        },
+      },
+      pipeline: {
+        id: "workflow-1",
+        companyId: "company-1",
+        key: "website-development",
+        name: "Website Development",
+        description: null,
+        projectId: null,
+        enforceTransitions: true,
+        archivedAt: null,
+        stageCount: 4,
+        openCaseCount: 1,
+        createdAt: "2026-07-22T00:00:00.000Z",
+        updatedAt: "2026-07-22T00:00:00.000Z",
+      },
+      allowedNextStages: [
+        { id: "stage-deploy", pipelineId: "workflow-1", key: "deploy_verify", name: "Deploy & Verify", kind: "review", position: 500 },
+        { id: "stage-build", pipelineId: "workflow-1", key: "design_build", name: "Design & Build", kind: "working", position: 300 },
+        { id: "stage-blueprint", pipelineId: "workflow-1", key: "website_blueprint", name: "Website Blueprint", kind: "review", position: 200 },
+      ],
+      links: [],
+      blockers: [],
+      blocks: [],
+      childrenSummary: { childCount: 0, terminalChildCount: 0, loadedChildren: 0 },
+    });
+
+    await act(async () => {
+      root.render(
+        <QueryClientProvider client={queryClient}>
+          <IssueDetail />
+        </QueryClientProvider>,
+      );
+    });
+    await waitForAssertion(() => {
+      expect(container.textContent).toContain("Workflow review");
+      expect(container.textContent).toContain("Agent confirmation cards do not advance this Workflow");
+      expect(container.textContent).toContain("Move to Deploy & Verify");
+    });
   });
 
   it("removes an inbox-origin archived issue from cached inbox variants before navigating back", async () => {
