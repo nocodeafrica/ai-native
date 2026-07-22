@@ -37,6 +37,12 @@ export const companiesApi = {
         | "feedbackDataSharingEnabled"
         | "brandColor"
         | "logoAssetId"
+        | "workspaceBackgroundKind"
+        | "workspaceBackgroundPreset"
+        | "workspaceBackgroundAssetId"
+        | "workspaceBackgroundPosition"
+        | "workspaceBackgroundPresence"
+        | "workspaceGlassCharacter"
       >
     >,
   ) => api.patch<Company>(`/companies/${companyId}`, data),

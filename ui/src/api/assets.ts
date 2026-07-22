@@ -26,4 +26,7 @@ export const assetsApi = {
     form.append("file", safeFile);
     return api.postForm<AssetImage>(`/companies/${companyId}/logo`, form);
   },
+
+  uploadWorkspaceBackground: (companyId: string, file: File) =>
+    assetsApi.uploadImage(companyId, file, "workspace-backgrounds"),
 };
