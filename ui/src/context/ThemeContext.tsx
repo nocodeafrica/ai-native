@@ -21,18 +21,22 @@ const DARK_THEME_COLOR = "#18181b";
 const LIGHT_THEME_COLOR = "#ffffff";
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
-function resolveThemeFromDocument(): Theme {
-  if (typeof document === "undefined") return "dark";
-  return document.documentElement.classList.contains("dark") ? "dark" : "light";
-}
-
-function hasStoredTheme(): boolean {
-  if (typeof window === "undefined") return false;
+function resolveInitialTheme(): Theme {
+  if (typeof window === "undefined") return "dark";
   try {
     const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
-    return stored === "light" || stored === "dark";
+    return stored === "light" || stored === "dark" ? stored : "dark";
   } catch {
-    return false;
+    return "dark";
+  }
+}
+
+function persistTheme(theme: Theme) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(THEME_STORAGE_KEY, theme);
+  } catch {
+    // Ignore local storage write failures in restricted environments.
   }
 }
 
@@ -49,44 +53,24 @@ function applyTheme(theme: Theme) {
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(() => resolveThemeFromDocument());
-  // Track whether the user has explicitly chosen a theme. If false, the
-  // theme is being derived from the OS `prefers-color-scheme` and should
-  // follow OS-level changes mid-session without being persisted.
-  const [hasExplicitChoice, setHasExplicitChoice] = useState<boolean>(() => hasStoredTheme());
+  const [theme, setThemeState] = useState<Theme>(() => resolveInitialTheme());
 
   const setTheme = useCallback((nextTheme: Theme) => {
-    setHasExplicitChoice(true);
+    persistTheme(nextTheme);
     setThemeState(nextTheme);
   }, []);
 
   const toggleTheme = useCallback(() => {
-    setHasExplicitChoice(true);
-    setThemeState((current) => (current === "dark" ? "light" : "dark"));
+    setThemeState((current) => {
+      const nextTheme = current === "dark" ? "light" : "dark";
+      persistTheme(nextTheme);
+      return nextTheme;
+    });
   }, []);
 
   useEffect(() => {
     applyTheme(theme);
-    if (!hasExplicitChoice) return;
-    try {
-      localStorage.setItem(THEME_STORAGE_KEY, theme);
-    } catch {
-      // Ignore local storage write failures in restricted environments.
-    }
-  }, [theme, hasExplicitChoice]);
-
-  // When the user has not made an explicit choice, follow OS-level
-  // `prefers-color-scheme` changes so the UI flips alongside the OS theme.
-  useEffect(() => {
-    if (hasExplicitChoice) return;
-    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
-    const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const handleChange = (event: MediaQueryListEvent) => {
-      setThemeState(event.matches ? "dark" : "light");
-    };
-    media.addEventListener("change", handleChange);
-    return () => media.removeEventListener("change", handleChange);
-  }, [hasExplicitChoice]);
+  }, [theme]);
 
   const value = useMemo(
     () => ({
