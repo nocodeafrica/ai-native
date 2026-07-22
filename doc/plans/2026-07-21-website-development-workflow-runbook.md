@@ -1,6 +1,6 @@
 # Website Development Workflow Runbook
 
-Status: configured and durably verified in the isolated `codex-workflows` instance; Wilton Plumbing preview proof is in progress. This document records non-secret identifiers and evidence links only. Never put credentials or secret values here.
+Status: configured and durably verified in the isolated `codex-workflows` instance. The Wilton Plumbing preview has reached its revision-bound Website Blueprint human gate; no build or deployment is authorized yet. This document records non-secret identifiers and evidence links only. Never put credentials or secret values here.
 
 ## Purpose
 
@@ -123,8 +123,16 @@ After configuration, reload and fetch `GET /api/pipelines/{id}`. Do not call con
 | Installed skill records | `4808a27c-5049-4422-9a9a-20f32000857d`, `8cb9fadd-0acd-4d35-aa12-8ef0a6d2ca78`, `6df739db-7c86-4318-9f9e-20da3c99ca55`, `f2732210-bb53-4f5a-8e68-76affb1a03b1`, `c965e800-c387-4120-9e8f-e875cd3bc605` | proven |
 | Workflow configuration response | Website Development `f48d28c4-19d1-4ba3-b3d0-87357c372c8f`; seven stages; ten transitions; five routines; two human gates | proven |
 | Reloaded persistence proof | `GET /api/pipelines/f48d28c4-19d1-4ba3-b3d0-87357c372c8f`; health `ok: true`, warnings `[]` | proven |
-| Approval and stale-review proof | pending controlled run | not started |
+| Truth and Assets run | case `30008433-97e9-46c9-8c45-cf649745fdcc`; HOR-9 `c27acb3e-f640-4958-ae89-6f1b379000ae`; run `675fd1ff-811e-4908-99e5-004b9277d742`; 9 pages + 10 posts; 76 visually inspected source images; 65 keep-high, 9 keep-low, 2 rejected | proven |
+| Website Blueprint run | HOR-10 `b3136fbb-e3fc-481b-aa16-a436315a8f31`; run `8584b085-16bd-41cd-a21b-af46ad4fe2e2`; document `website-blueprint` revision 20 `b13a5372-5c95-48fb-b10e-3fe92c354ab9`; approval interaction `92313fbb-e5aa-45e8-b29a-d2eb2155787f` | proven; pending human decision |
+| Blueprint artifacts | visual Blueprint attachment `0387af81-7f1f-4f0f-958a-cbefc5cd0079`; Production Image Contact Sheet `6619f012-3a59-4087-abf7-f272b0ac3002` | proven |
+| Approval and stale-review proof | exact revision-bound confirmation is pending; no agent transition occurred | partial |
 | Build-repair proof | pending controlled run | not started |
 | Blueprint-revision proof | pending controlled run | not started |
-| Real preview journey | source `https://wiltonplumbing.co.za/`; preview-only | in progress |
+| Real preview journey | source `https://wiltonplumbing.co.za/`; preview-only; case remains at `website_blueprint`, HOR-10 is `in_review`, no Build issue exists | stopped at intended human gate |
 | Public Deployment Receipt | pending separate explicit approval | blocked |
+
+## Defects exposed by the Wilton proof
+
+- Generated stage instructions named a nonexistent `pipeline-case-operations` skill. The prompt now names the shipped `paperclipai/paperclip/paperclip` skill, protected by a pipeline-service regression test.
+- The Creative Director's shell command accidentally sent malformed JSON while attempting a whole-document update; Paperclip returned an opaque `500`. A disposable update on superseded HOR-8 proved the actual 16,977-character Blueprint updates in one request with HTTP 200. The error middleware now classifies body-parser `entity.parse.failed` errors as `400 {"error":"Malformed JSON body"}`, protected by a regression test. The disposable reproduction document was deleted.
