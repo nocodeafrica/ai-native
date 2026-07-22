@@ -4,6 +4,31 @@ export type CompanyStatus = (typeof COMPANY_STATUSES)[number];
 export const DEFAULT_COMPANY_ATTACHMENT_MAX_BYTES = 10 * 1024 * 1024;
 export const MAX_COMPANY_ATTACHMENT_MAX_BYTES = 1024 * 1024 * 1024;
 
+export const WORKSPACE_BACKGROUND_KINDS = ["preset", "upload", "none"] as const;
+export type WorkspaceBackgroundKind = (typeof WORKSPACE_BACKGROUND_KINDS)[number];
+
+export const WORKSPACE_BACKGROUND_PRESETS = ["ainative-ambient"] as const;
+export type WorkspaceBackgroundPreset = (typeof WORKSPACE_BACKGROUND_PRESETS)[number];
+
+export const WORKSPACE_BACKGROUND_POSITIONS = [
+  "top-left",
+  "top",
+  "top-right",
+  "left",
+  "center",
+  "right",
+  "bottom-left",
+  "bottom",
+  "bottom-right",
+] as const;
+export type WorkspaceBackgroundPosition = (typeof WORKSPACE_BACKGROUND_POSITIONS)[number];
+
+export const WORKSPACE_BACKGROUND_PRESENCES = ["quiet", "balanced", "vivid"] as const;
+export type WorkspaceBackgroundPresence = (typeof WORKSPACE_BACKGROUND_PRESENCES)[number];
+
+export const WORKSPACE_GLASS_CHARACTERS = ["soft", "balanced", "clear"] as const;
+export type WorkspaceGlassCharacter = (typeof WORKSPACE_GLASS_CHARACTERS)[number];
+
 export const DEPLOYMENT_MODES = ["local_trusted", "authenticated"] as const;
 export type DeploymentMode = (typeof DEPLOYMENT_MODES)[number];
 
