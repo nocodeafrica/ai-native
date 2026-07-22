@@ -369,4 +369,3 @@ Show the real screenshots and summarize:
 - that no deployment or upstream PR occurred.
 
 Do not extend glass to page cards, headers, dialogs, or secondary sidebars until the owner approves this real-browser proof.
-

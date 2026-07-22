@@ -121,4 +121,3 @@ Implementation is acceptable only when all of the following are proven:
 - New motion library or dependency
 - Server, API, database, plugin, or workflow changes
 - Deployment or upstream pull request
-
