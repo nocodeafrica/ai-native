@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan.
 
-**Goal:** Turn Paperclip's primary sidebar into a dark-first floating liquid-glass instrument with a neutral diffuse-light interaction language, while preserving every current rail, peek, resize, mobile, and secondary-sidebar behavior.
+**Goal:** Turn Paperclip's desktop primary sidebar into a dark-first, flush square liquid-glass rail with a neutral diffuse-light interaction language, while preserving every current rail, peek, resize, mobile, and secondary-sidebar behavior.
 
-**Architecture:** Keep the existing `Layout` → `SidebarShell` → `Sidebar` → `SidebarNavItem` structure. `Layout` adds one decorative, fixed workspace backdrop; `SidebarShell` remains the single material boundary; `Sidebar` becomes visually transparent; and `SidebarNavItem` exposes route state through stable data attributes consumed by CSS. All visual values live in `ui/src/index.css`, and the existing local-storage theme contract changes only so an absent preference resolves to dark.
+**Architecture:** Keep the existing `Layout` → `SidebarShell` → `Sidebar` → `SidebarNavItem` structure. `Layout` owns the fixed workspace backdrop; `SidebarShell` remains the single material boundary; `Sidebar` stays visually transparent; and `SidebarNavItem` exposes route state through stable data attributes consumed by CSS. Desktop geometry is square and flush through the shared `.navigation-instrument` rule, while `.navigation-instrument-mobile` explicitly retains the existing inset rounded drawer. All visual values live in `ui/src/index.css`.
 
 **Tech Stack:** React 19, TypeScript, React Router, Tailwind CSS v4, Vitest/jsdom, Vite.
 
@@ -14,7 +14,7 @@
 
 ## Acceptance gate
 
-This phase is complete only when focused component tests, `pnpm check:token-gates`, workspace typecheck, and production build are green; then the real app at `http://127.0.0.1:3100/HOR/dashboard` passes desktop and mobile browser checks. The proof must show expanded, rail, peek, active, hover, focus, resize, and drawer states without changing navigation behavior. Do not propagate glass to secondary sidebars or page cards in this phase.
+This phase is complete only when focused component tests, `pnpm check:token-gates`, workspace typecheck, and production build are green; then the real app at `http://127.0.0.1:3100/HOR/dashboard` passes desktop and mobile browser checks. The desktop proof must show a full-height square rail with no outer gaps or rounded corners across expanded, collapsed, and peek states. Active, hover, focus, resize, and the unchanged mobile drawer must keep their current behavior. Do not propagate glass to secondary sidebars or page cards in this phase.
 
 ## Task 1: Add the atmospheric workspace backdrop
 
@@ -91,7 +91,7 @@ git add ui/src/components/Layout.test.tsx ui/src/components/Layout.tsx ui/src/in
 git commit -m "feat(ui): add atmospheric workspace backdrop"
 ```
 
-## Task 2: Make `SidebarShell` the single floating glass instrument
+## Task 2: Make `SidebarShell` the single square glass rail
 
 **Files:**
 
@@ -131,20 +131,20 @@ In `SidebarShell.tsx`:
 - add `data-slot="navigation-instrument"` and `data-mode={mode}` to the absolutely positioned panel;
 - add a stable `navigation-instrument` class;
 - keep the current inline width styles because they are behavioral geometry, not visual styling;
-- remove the peek-only opaque `border-r bg-background shadow-lg` classes; elevation will come from the single material class and a `data-sidebar-overlay` refinement;
+- keep the existing `navigation-instrument` and `data-sidebar-overlay` hooks; elevation comes from the single material class and its overlay refinement;
 - keep resize/pointer/focus handlers and all timers untouched.
 
 In `Sidebar.tsx`, add `data-slot="navigation-sidebar"` and make its outer `aside` transparent by removing only the background/border surface classes. Do not alter sections, actions, company selection, scrolling, badges, or footer behavior.
 
 ### Step 3: Define the glass material once
 
-In `ui/src/index.css`, add semantic light and dark tokens for instrument fill, fallback fill, border, inner highlight, blur, saturation, base shadow, overlay shadow, desktop inset, mobile inset, and radius. Implement:
+In `ui/src/index.css`, keep the semantic light and dark tokens for instrument fill, fallback fill, border, inner highlight, blur, and saturation. Split silhouette-specific geometry and elevation between desktop and mobile. Implement:
 
-- a continuous rounded silhouette with a fine outer edge and inset highlight;
+- desktop `.navigation-instrument`: `margin: 0`, no outer radius, no top/left/bottom border, one right-hand glass edge, and a right-casting shadow;
+- desktop `[data-sidebar-overlay]`: a stronger right-casting shadow without changing fill, edge, or square geometry;
+- `.navigation-instrument-mobile`: the existing inset, full border, radius, and all-around shadow, so this revision does not alter the drawer;
 - one `backdrop-filter` layer on `.navigation-instrument` only;
-- slightly stronger elevation for `[data-sidebar-overlay]` without changing fill language;
 - an opaque fallback inside `@supports not (backdrop-filter: blur(...))`;
-- safe desktop inset and mobile drawer treatment through media queries;
 - no width transition, preserving the current snap behavior;
 - reduced-motion handling for any non-essential material transition.
 
@@ -163,7 +163,7 @@ Expected: PASS, including all pre-existing rail, resize, peek, and route-sidebar
 
 ```bash
 git add ui/src/components/SidebarShell.test.tsx ui/src/components/SidebarShell.tsx ui/src/components/Sidebar.test.tsx ui/src/components/Sidebar.tsx ui/src/index.css
-git commit -m "feat(ui): render sidebar as floating glass instrument"
+git commit -m "refine(ui): square the desktop glass sidebar"
 ```
 
 ## Task 3: Replace generic pill selection with diffuse neutral light
@@ -357,7 +357,7 @@ Navigate to a route that opens a secondary sidebar, such as company settings. Pr
 
 ### Step 3: Verify mobile drawer behavior
 
-At a narrow mobile viewport, prove drawer open/dismiss, route-close, internal scrolling, focus visibility, and absence of horizontal overflow. Confirm the desktop inset/radius rules do not clip mobile controls.
+At a narrow mobile viewport, prove drawer open/dismiss, route-close, internal scrolling, focus visibility, and absence of horizontal overflow. Confirm the square desktop geometry does not leak into or clip the inset rounded mobile drawer.
 
 ### Step 4: Present the owner proof and stop
 
