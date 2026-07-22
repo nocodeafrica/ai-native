@@ -138,6 +138,8 @@ import {
 import { shouldWakeAssigneeOnCheckout } from "./issues-checkout-wakeup.js";
 import {
   GENERIC_ATTACHMENT_CONTENT_TYPES,
+  HTML_ATTACHMENT_CONTENT_SECURITY_POLICY,
+  HTML_CONTENT_TYPE,
   isInlineAttachmentContentType,
   normalizeIssueAttachmentMaxBytes,
   normalizeContentType,
@@ -10537,6 +10539,9 @@ export function issueRoutes(
     res.setHeader("X-Content-Type-Options", "nosniff");
     if (responseContentType === SVG_CONTENT_TYPE) {
       res.setHeader("Content-Security-Policy", "sandbox; default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'");
+    }
+    if (responseContentType === HTML_CONTENT_TYPE) {
+      res.setHeader("Content-Security-Policy", HTML_ATTACHMENT_CONTENT_SECURITY_POLICY);
     }
     const filename = attachment.originalFilename ?? "attachment";
     const disposition = parseBooleanQuery(req.query.download)
