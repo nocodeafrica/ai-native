@@ -398,6 +398,9 @@
 .workspace-appearance-editor {
   --workspace-appearance-choice-fill: color-mix(in oklab, var(--background) 58%, transparent);
   --workspace-appearance-choice-selected: color-mix(in oklab, var(--foreground) 9%, transparent);
+  --workspace-appearance-gallery-min: 7.6rem;
+  --workspace-appearance-motion-duration: 150ms;
+  --workspace-appearance-motion-ease: cubic-bezier(0.16, 1, 0.3, 1);
   --workspace-appearance-preview-height: 15rem;
   --workspace-appearance-sidebar-width: 29%;
   --workspace-appearance-position-size: 1.25rem;
@@ -511,9 +514,104 @@
   --navigation-instrument-saturation: 1.35;
 }
 
-.workspace-appearance-choice,
-.workspace-appearance-source {
+.workspace-appearance-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--workspace-appearance-gallery-min), 1fr));
+  gap: 0.6rem;
+}
+
+.workspace-appearance-background-tile {
+  position: relative;
+  display: flex;
+  aspect-ratio: 16 / 9;
   min-width: 0;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid color-mix(in oklab, var(--foreground) 12%, var(--border));
+  border-radius: var(--radius-md);
+  background: color-mix(in oklab, var(--background) 62%, transparent);
+  color: var(--muted-foreground);
+  box-shadow: inset 0 1px 0 color-mix(in oklab, var(--foreground) 6%, transparent);
+  transition: border-color var(--workspace-appearance-motion-duration) var(--workspace-appearance-motion-ease),
+    box-shadow var(--workspace-appearance-motion-duration) var(--workspace-appearance-motion-ease),
+    transform var(--workspace-appearance-motion-duration) var(--workspace-appearance-motion-ease);
+}
+
+.workspace-appearance-background-tile > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.workspace-appearance-background-tile:hover {
+  z-index: 1;
+  border-color: color-mix(in oklab, var(--foreground) 32%, var(--border));
+  box-shadow: inset 0 1px 0 color-mix(in oklab, var(--foreground) 12%, transparent),
+    0 0.55rem 1.5rem color-mix(in oklab, var(--background) 58%, transparent);
+  transform: translateY(-0.08rem);
+}
+
+.workspace-appearance-background-tile-selected {
+  border-color: color-mix(in oklab, var(--foreground) 54%, var(--border));
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--foreground) 25%, transparent),
+    inset 0 1px 0 color-mix(in oklab, var(--foreground) 18%, transparent),
+    0 0.6rem 1.6rem color-mix(in oklab, var(--background) 48%, transparent);
+}
+
+.workspace-appearance-background-tile-label {
+  position: absolute;
+  inset: auto 0 0;
+  overflow: hidden;
+  padding: 0.45rem 0.55rem;
+  background: color-mix(in oklab, var(--background) 66%, transparent);
+  color: color-mix(in oklab, var(--foreground) 88%, transparent);
+  font-size: var(--text-nano);
+  font-weight: 540;
+  line-height: 1.15;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  backdrop-filter: blur(0.7rem) saturate(1.2);
+}
+
+.workspace-appearance-background-tile-check {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.45rem;
+  width: 1.2rem;
+  height: 1.2rem;
+  padding: 0.25rem;
+  border: 1px solid color-mix(in oklab, var(--foreground) 28%, transparent);
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--background) 72%, transparent);
+  color: var(--foreground);
+  box-shadow: 0 0.25rem 0.8rem color-mix(in oklab, var(--background) 52%, transparent);
+  backdrop-filter: blur(0.55rem);
+}
+
+.workspace-appearance-background-tile-none,
+.workspace-appearance-background-tile-upload:not(:has(img)) {
+  background-image: radial-gradient(
+    circle at 72% 18%,
+    color-mix(in oklab, var(--foreground) 10%, transparent),
+    transparent 58%
+  );
+}
+
+.workspace-appearance-background-tile:disabled {
+  cursor: wait;
+  opacity: 0.68;
+}
+
+.workspace-appearance-choice {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.7rem 0.75rem;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   background: var(--workspace-appearance-choice-fill);
@@ -521,22 +619,7 @@
   text-align: left;
 }
 
-.workspace-appearance-choice {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-  padding: 0.7rem 0.75rem;
-}
-
-.workspace-appearance-source {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.65rem;
-  padding: 0.75rem;
-}
-
-.workspace-appearance-choice:hover,
-.workspace-appearance-source:hover {
+.workspace-appearance-choice:hover {
   border-color: color-mix(in oklab, var(--foreground) 24%, var(--border));
   background: color-mix(in oklab, var(--foreground) 6%, transparent);
 }
@@ -548,7 +631,7 @@
 }
 
 .workspace-appearance-choice:focus-visible,
-.workspace-appearance-source:focus-visible,
+.workspace-appearance-background-tile:focus-visible,
 .workspace-appearance-position:focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 2px;

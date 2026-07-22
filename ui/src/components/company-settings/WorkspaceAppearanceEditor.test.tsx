@@ -120,13 +120,29 @@ describe("WorkspaceAppearanceEditor", () => {
     }));
   });
 
-  it("keeps Custom unsaveable until an image is available", async () => {
-    const custom = Array.from(container.querySelectorAll('[role="radio"]'))
-      .find((node) => node.textContent?.includes("Custom")) ?? null;
-    await act(async () => click(custom));
+  it("uses the old-fork direct gallery and opens upload from its permanent tile", async () => {
+    const presets = container.querySelectorAll('button[aria-label^="Background "]');
+    expect(presets).toHaveLength(126);
+
+    const atmosphereFive = container.querySelector('[aria-label="Background Atmosphere 005"]');
+    await act(async () => click(atmosphereFive));
+    expect(atmosphereFive?.getAttribute("aria-pressed")).toBe("true");
+    expect(container.querySelector('[aria-label="Workspace appearance preview"]')?.getAttribute("style"))
+      .toContain('/backgrounds/bg_005.webp');
+
     const save = Array.from(container.querySelectorAll("button"))
-      .find((button) => button.textContent?.includes("Save appearance")) as HTMLButtonElement;
-    expect(save.disabled).toBe(true);
-    expect(container.textContent).toContain("Choose an image before saving Custom.");
+      .find((button) => button.textContent?.includes("Save appearance")) ?? null;
+    await act(async () => click(save));
+    await flushReact();
+    expect(mockCompaniesApi.update).toHaveBeenCalledWith("company-1", expect.objectContaining({
+      workspaceBackgroundKind: "preset",
+      workspaceBackgroundPreset: "bg_005",
+    }));
+
+    const input = container.querySelector('[aria-label="Choose custom background image"]') as HTMLInputElement;
+    const inputClick = vi.spyOn(input, "click");
+    const upload = container.querySelector('[aria-label="Upload custom background"]');
+    await act(async () => click(upload));
+    expect(inputClick).toHaveBeenCalledOnce();
   });
 });

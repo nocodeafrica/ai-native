@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add a company-scoped Appearance studio that previews and persists the workspace background, background presence, glass character, and focal position.
+**Goal:** Add a company-scoped Appearance studio that previews and persists a directly selected gallery or uploaded workspace background, background presence, glass character, and focal position.
 
 **Architecture:** Extend the company contract with typed appearance fields and a one-to-one background-asset association, reusing the existing company image asset pipeline. A focused appearance resolver converts stored preset names into semantic CSS variables shared by the live `Layout` and the settings preview. Company Settings owns editing and upload state; the shell remains presentation-only.
 
@@ -14,7 +14,7 @@
 
 ## Acceptance gate
 
-The slice ships only after persistence survives reload and server restart in the repo-local `HOR` instance, company switching does not leak appearance, upload/reset/fallback paths work, and focused tests, token gates, typecheck, build, and signed-in desktop/narrow browser checks pass. The pre-existing `.gitignore` modification is not part of this work.
+The slice ships only after persistence survives reload and server restart in the repo-local `HOR` instance, company switching does not leak appearance, direct gallery selection plus upload/reset/fallback paths work, and focused tests, token gates, typecheck, build, and signed-in desktop/narrow browser checks pass. The pre-existing `.gitignore` modification is not part of this work.
 
 ### Task 1: Define the typed appearance contract
 
@@ -52,7 +52,7 @@ Export constants and types:
 
 ```ts
 export const WORKSPACE_BACKGROUND_KINDS = ["preset", "upload", "none"] as const;
-export const WORKSPACE_BACKGROUND_PRESETS = ["ainative-ambient"] as const;
+export const WORKSPACE_BACKGROUND_PRESETS = ["ainative-ambient", "bg_002", /* … */ "bg_126"] as const;
 export const WORKSPACE_BACKGROUND_POSITIONS = [
   "top-left", "top", "top-right", "left", "center", "right",
   "bottom-left", "bottom", "bottom-right",

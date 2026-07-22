@@ -38,9 +38,11 @@ const POSITION_VALUES: Record<WorkspaceBackgroundPosition, string> = {
   "bottom-right": "100% 100%",
 };
 
-const PRESET_URLS: Record<WorkspaceBackgroundPreset, string> = {
-  "ainative-ambient": "/backgrounds/ainative-ambient.webp",
-};
+export function workspaceBackgroundPresetUrl(preset: WorkspaceBackgroundPreset) {
+  return preset === "ainative-ambient"
+    ? "/backgrounds/ainative-ambient.webp"
+    : `/backgrounds/${preset}.webp`;
+}
 
 function cssUrl(url: string) {
   return `url("${url.replaceAll("\\", "\\\\").replaceAll('"', '\\"')}")`;
@@ -59,7 +61,7 @@ export function appearanceFromCompany(company: Company | null): WorkspaceAppeara
 }
 
 export function resolveWorkspaceAppearance(appearance: WorkspaceAppearanceDraft) {
-  const presetUrl = PRESET_URLS[appearance.workspaceBackgroundPreset] ?? PRESET_URLS["ainative-ambient"];
+  const presetUrl = workspaceBackgroundPresetUrl(appearance.workspaceBackgroundPreset);
   const image = appearance.workspaceBackgroundKind === "none"
     ? "none"
     : appearance.workspaceBackgroundKind === "upload" && appearance.workspaceBackgroundUrl

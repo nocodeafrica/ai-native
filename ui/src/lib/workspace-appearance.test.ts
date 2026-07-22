@@ -31,6 +31,16 @@ describe("resolveWorkspaceAppearance", () => {
     expect(none.style).toMatchObject({ "--workspace-image": "none" });
   });
 
+  it("resolves every recovered gallery preset through its vendored image path", () => {
+    const resolved = resolveWorkspaceAppearance({
+      ...DEFAULT_WORKSPACE_APPEARANCE,
+      workspaceBackgroundPreset: "bg_126",
+    });
+    expect(resolved.style).toMatchObject({
+      "--workspace-image": 'url("/backgrounds/bg_126.webp")',
+    });
+  });
+
   it("falls back to the built-in image when an uploaded asset is missing", () => {
     const resolved = resolveWorkspaceAppearance({
       ...DEFAULT_WORKSPACE_APPEARANCE,

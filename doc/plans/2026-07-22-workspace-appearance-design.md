@@ -15,10 +15,11 @@ The company owns the background choice and its readability treatment, so every o
 Add a focused appearance studio to the existing Appearance section:
 
 1. A live workspace preview showing the backdrop, content wash, and floating navigation glass together.
-2. A background source selector with:
-   - the built-in AI Native atmospheric image,
-   - a custom uploaded image,
-   - no image.
+2. A direct visual background gallery, following the old fork's proven interaction:
+   - the recovered built-in atmospheric image set,
+   - an always-visible custom-upload tile,
+   - a no-image tile.
+   The images themselves are the controls; there is no intermediate source-mode selection.
 3. A **Background presence** selector with three designed presets:
    - **Quiet** — the image is restrained behind operational content,
    - **Balanced** — the default,
@@ -104,4 +105,4 @@ The phase passes when all of the following are proven:
 - Theme synchronization across devices.
 - Arbitrary blur, opacity, saturation, or gradient controls.
 - Animated or video backgrounds.
-- A marketplace or downloadable background gallery.
+- A marketplace or downloadable third-party background catalogue. The recovered first-party gallery is included.

@@ -2,12 +2,13 @@ import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type {
   Company,
-  WorkspaceBackgroundKind,
   WorkspaceBackgroundPosition,
   WorkspaceBackgroundPresence,
+  WorkspaceBackgroundPreset,
   WorkspaceGlassCharacter,
 } from "@paperclipai/shared";
-import { Check, Image, ImageOff, RotateCcw, Upload } from "lucide-react";
+import { WORKSPACE_BACKGROUND_PRESETS } from "@paperclipai/shared";
+import { Check, ImageOff, RotateCcw, Upload } from "lucide-react";
 import { assetsApi } from "../../api/assets";
 import { companiesApi } from "../../api/companies";
 import { useWorkspaceAppearancePreview } from "../../context/WorkspaceAppearanceContext";
@@ -15,17 +16,12 @@ import {
   appearanceFromCompany,
   DEFAULT_WORKSPACE_APPEARANCE,
   resolveWorkspaceAppearance,
+  workspaceBackgroundPresetUrl,
   type WorkspaceAppearanceDraft,
 } from "../../lib/workspace-appearance";
 import { queryKeys } from "../../lib/queryKeys";
 import { cn } from "../../lib/utils";
 import { Button } from "../ui/button";
-
-const SOURCES: Array<{ value: WorkspaceBackgroundKind; label: string; detail: string }> = [
-  { value: "preset", label: "AI Native", detail: "The atmospheric original" },
-  { value: "upload", label: "Custom", detail: "Your own workspace image" },
-  { value: "none", label: "None", detail: "A calm tonal surface" },
-];
 
 const PRESENCES: Array<{ value: WorkspaceBackgroundPresence; label: string; detail: string }> = [
   { value: "quiet", label: "Quiet", detail: "Content leads" },
@@ -50,6 +46,11 @@ const POSITIONS: Array<{ value: WorkspaceBackgroundPosition; label: string }> = 
   { value: "bottom", label: "Bottom" },
   { value: "bottom-right", label: "Bottom right" },
 ];
+
+function presetLabel(preset: WorkspaceBackgroundPreset) {
+  if (preset === "ainative-ambient") return "AI Native original";
+  return `Atmosphere ${preset.slice(3)}`;
+}
 
 function ChoiceGroup<T extends string>({
   label,
@@ -98,6 +99,7 @@ export function WorkspaceAppearanceEditor({ company }: { company: Company }) {
   const [backgroundAssetId, setBackgroundAssetId] = useState(company.workspaceBackgroundAssetId);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const companyIdRef = useRef(company.id);
+  const uploadInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     companyIdRef.current = company.id;
@@ -161,6 +163,35 @@ export function WorkspaceAppearanceEditor({ company }: { company: Company }) {
     uploadMutation.mutate(file);
   }
 
+  function renderPresetTile(preset: WorkspaceBackgroundPreset) {
+    const selected = draft.workspaceBackgroundKind === "preset"
+      && draft.workspaceBackgroundPreset === preset;
+    return (
+      <button
+        key={preset}
+        type="button"
+        aria-pressed={selected}
+        aria-label={`Background ${presetLabel(preset)}`}
+        className={cn("workspace-appearance-background-tile", selected && "workspace-appearance-background-tile-selected")}
+        onClick={() => updateDraft({
+          workspaceBackgroundKind: "preset",
+          workspaceBackgroundPreset: preset,
+        })}
+      >
+        <img
+          src={workspaceBackgroundPresetUrl(preset)}
+          alt=""
+          loading="lazy"
+          decoding="async"
+        />
+        <span className="workspace-appearance-background-tile-label">
+          {presetLabel(preset)}
+        </span>
+        {selected ? <Check className="workspace-appearance-background-tile-check" aria-hidden="true" /> : null}
+      </button>
+    );
+  }
+
   function resetDraft() {
     setDraft(DEFAULT_WORKSPACE_APPEARANCE);
     setBackgroundAssetId(null);
@@ -200,46 +231,68 @@ export function WorkspaceAppearanceEditor({ company }: { company: Company }) {
       </div>
 
       <div className="space-y-2">
-        <div className="text-xs font-medium text-foreground">Background</div>
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3" role="radiogroup" aria-label="Background source">
-          {SOURCES.map((source) => {
-            const selected = source.value === draft.workspaceBackgroundKind;
-            const Icon = source.value === "preset" ? Image : source.value === "upload" ? Upload : ImageOff;
-            return (
-              <button
-                key={source.value}
-                type="button"
-                role="radio"
-                aria-checked={selected}
-                className={cn("workspace-appearance-source", selected && "workspace-appearance-choice-selected")}
-                onClick={() => updateDraft({ workspaceBackgroundKind: source.value })}
-              >
-                <Icon className="h-4 w-4" aria-hidden="true" />
-                <span>
-                  <span className="block font-medium">{source.label}</span>
-                  <span className="block text-xs text-muted-foreground">{source.detail}</span>
-                </span>
-              </button>
-            );
-          })}
+        <div>
+          <div className="text-xs font-medium text-foreground">Background</div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Choose a scene directly, or upload your own. The workspace previews it immediately.
+          </p>
         </div>
-        {draft.workspaceBackgroundKind === "upload" ? (
-          <div className="flex flex-wrap items-center gap-2 pt-1">
-            <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-border bg-background/70 px-3 py-2 text-xs font-medium hover:bg-accent">
-              <Upload className="h-3.5 w-3.5" aria-hidden="true" />
-              {uploadMutation.isPending ? "Uploading…" : backgroundAssetId ? "Replace image" : "Choose image"}
-              <input
-                className="sr-only"
-                type="file"
-                accept="image/png,image/jpeg,image/webp,image/gif"
-                onChange={handleUpload}
-                disabled={uploadMutation.isPending}
-              />
-            </label>
-            {backgroundAssetId ? <span className="text-xs text-muted-foreground">Custom image ready</span> : null}
-            {uploadError ? <span className="text-xs text-destructive">{uploadError}</span> : null}
-          </div>
-        ) : null}
+        <div className="workspace-appearance-gallery" aria-label="Background gallery">
+          {renderPresetTile(WORKSPACE_BACKGROUND_PRESETS[0])}
+
+          <button
+            type="button"
+            aria-pressed={draft.workspaceBackgroundKind === "upload"}
+            aria-label={backgroundAssetId ? "Replace custom background" : "Upload custom background"}
+            className={cn(
+              "workspace-appearance-background-tile workspace-appearance-background-tile-upload",
+              draft.workspaceBackgroundKind === "upload" && "workspace-appearance-background-tile-selected",
+            )}
+            onClick={() => uploadInputRef.current?.click()}
+            disabled={uploadMutation.isPending}
+          >
+            {draft.workspaceBackgroundKind === "upload" && draft.workspaceBackgroundUrl ? (
+              <img src={draft.workspaceBackgroundUrl} alt="" />
+            ) : (
+              <Upload className="h-5 w-5" aria-hidden="true" />
+            )}
+            <span className="workspace-appearance-background-tile-label">
+              {uploadMutation.isPending ? "Uploading…" : backgroundAssetId ? "Replace upload" : "Upload image"}
+            </span>
+            {draft.workspaceBackgroundKind === "upload"
+              ? <Check className="workspace-appearance-background-tile-check" aria-hidden="true" />
+              : null}
+          </button>
+
+          <button
+            type="button"
+            aria-pressed={draft.workspaceBackgroundKind === "none"}
+            aria-label="No background image"
+            className={cn(
+              "workspace-appearance-background-tile workspace-appearance-background-tile-none",
+              draft.workspaceBackgroundKind === "none" && "workspace-appearance-background-tile-selected",
+            )}
+            onClick={() => updateDraft({ workspaceBackgroundKind: "none" })}
+          >
+            <ImageOff className="h-5 w-5" aria-hidden="true" />
+            <span className="workspace-appearance-background-tile-label">No image</span>
+            {draft.workspaceBackgroundKind === "none"
+              ? <Check className="workspace-appearance-background-tile-check" aria-hidden="true" />
+              : null}
+          </button>
+
+          {WORKSPACE_BACKGROUND_PRESETS.slice(1).map(renderPresetTile)}
+          <input
+            ref={uploadInputRef}
+            className="sr-only"
+            type="file"
+            accept="image/png,image/jpeg,image/webp,image/gif"
+            onChange={handleUpload}
+            disabled={uploadMutation.isPending}
+            aria-label="Choose custom background image"
+          />
+        </div>
+        {uploadError ? <p className="text-xs text-destructive">{uploadError}</p> : null}
       </div>
 
       <ChoiceGroup
