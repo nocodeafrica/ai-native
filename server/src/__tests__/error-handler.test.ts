@@ -48,6 +48,24 @@ describe("errorHandler", () => {
     expect(res.__errorContext?.error?.message).toBe("boom");
   });
 
+  it("returns a client error for malformed JSON bodies", () => {
+    const req = makeReq();
+    const res = makeRes() as any;
+    const next = vi.fn() as unknown as NextFunction;
+    const err = Object.assign(new SyntaxError("Unexpected token in JSON"), {
+      status: 400,
+      type: "entity.parse.failed",
+      body: '{"body":"broken\njson"}',
+    });
+
+    errorHandler(err, req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ error: "Malformed JSON body" });
+    expect(res.err).toBeUndefined();
+    expect(res.__errorContext).toBeUndefined();
+  });
+
   it("exposes raw 500 messages for trusted Cloud tenant imports", () => {
     const req = {
       ...makeReq(),

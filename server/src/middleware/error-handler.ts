@@ -23,6 +23,12 @@ function isRedactedSkillPolicyDenial(details: Record<string, unknown> | null) {
   return details?.code === "skill_policy_denied";
 }
 
+function isMalformedJsonBodyError(err: unknown) {
+  if (!(err instanceof SyntaxError) || typeof err !== "object" || err === null) return false;
+  const candidate = err as SyntaxError & { status?: unknown; type?: unknown };
+  return candidate.status === 400 && candidate.type === "entity.parse.failed";
+}
+
 function attachErrorContext(
   req: Request,
   res: Response,
@@ -106,6 +112,11 @@ export function errorHandler(
 
   if (err instanceof ZodError) {
     res.status(400).json({ error: "Validation error", details: err.errors });
+    return;
+  }
+
+  if (isMalformedJsonBodyError(err)) {
+    res.status(400).json({ error: "Malformed JSON body" });
     return;
   }
 

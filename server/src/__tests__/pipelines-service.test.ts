@@ -1326,6 +1326,8 @@ describeEmbeddedPostgres("pipelineService", () => {
     const [issue] = await db.select().from(issues).where(eq(issues.id, ledgers[0]!.executionIssueId!));
     expect(issue!.description).toContain("Pipeline Case Context");
     expect(issue!.description).toContain("untrustedContent");
+    expect(issue!.description).toContain("paperclipai/paperclip/paperclip");
+    expect(issue!.description).not.toContain("pipeline-case-operations");
 
     const triggerEvent = await db.insert(pipelineCaseEvents).values({
       companyId: company.id,
