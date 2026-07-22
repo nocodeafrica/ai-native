@@ -198,6 +198,16 @@
   --workspace-wash: linear-gradient(135deg, oklch(0.99 0.008 80 / 0.92), oklch(0.96 0.012 245 / 0.86));
   --workspace-vignette: radial-gradient(ellipse at 42% 34%, transparent 18%, oklch(0.28 0.018 250 / 0.18) 100%);
   --workspace-content-surface: color-mix(in oklab, var(--background) 91%, transparent);
+  --navigation-instrument-fill: oklch(0.99 0.006 80 / 0.74);
+  --navigation-instrument-fallback: oklch(0.97 0.008 80);
+  --navigation-instrument-edge: oklch(1 0 0 / 0.7);
+  --navigation-instrument-highlight: oklch(1 0 0 / 0.78);
+  --navigation-instrument-shadow: 0 1.5rem 4rem oklch(0.18 0.02 250 / 0.2), inset 0 1px 0 var(--navigation-instrument-highlight);
+  --navigation-instrument-overlay-shadow: 0 2rem 5rem oklch(0.12 0.02 250 / 0.34), inset 0 1px 0 var(--navigation-instrument-highlight);
+  --navigation-instrument-blur: 1.25rem;
+  --navigation-instrument-saturation: 1.22;
+  --navigation-instrument-inset: 0.5rem;
+  --navigation-instrument-radius: 1.125rem;
 }
 
 .dark {
@@ -261,6 +271,12 @@
   --workspace-wash: linear-gradient(126deg, oklch(0.09 0.012 260 / 0.76), oklch(0.12 0.018 235 / 0.6));
   --workspace-vignette: radial-gradient(ellipse at 46% 38%, transparent 8%, oklch(0.03 0.01 250 / 0.72) 100%);
   --workspace-content-surface: color-mix(in oklab, var(--background) 88%, transparent);
+  --navigation-instrument-fill: oklch(0.12 0.018 250 / 0.68);
+  --navigation-instrument-fallback: oklch(0.14 0.018 250);
+  --navigation-instrument-edge: oklch(0.92 0.018 230 / 0.2);
+  --navigation-instrument-highlight: oklch(0.98 0.012 220 / 0.2);
+  --navigation-instrument-shadow: 0 1.5rem 4rem oklch(0.02 0.01 250 / 0.48), inset 0 1px 0 var(--navigation-instrument-highlight);
+  --navigation-instrument-overlay-shadow: 0 2rem 5rem oklch(0.02 0.01 250 / 0.68), inset 0 1px 0 var(--navigation-instrument-highlight);
 }
 
 ::highlight(paperclip-doc-annotation-open) {
@@ -345,6 +361,27 @@
 
 .workspace-content-surface {
   background: var(--workspace-content-surface);
+}
+
+.navigation-instrument {
+  box-sizing: border-box;
+  margin: var(--navigation-instrument-inset) 0 var(--navigation-instrument-inset) var(--navigation-instrument-inset);
+  border: 1px solid var(--navigation-instrument-edge);
+  border-radius: var(--navigation-instrument-radius);
+  background: var(--navigation-instrument-fill);
+  box-shadow: var(--navigation-instrument-shadow);
+  backdrop-filter: blur(var(--navigation-instrument-blur)) saturate(var(--navigation-instrument-saturation));
+  -webkit-backdrop-filter: blur(var(--navigation-instrument-blur)) saturate(var(--navigation-instrument-saturation));
+}
+
+.navigation-instrument[data-sidebar-overlay] {
+  box-shadow: var(--navigation-instrument-overlay-shadow);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .navigation-instrument {
+    background: var(--navigation-instrument-fallback);
+  }
 }
 
 @media (pointer: coarse) {

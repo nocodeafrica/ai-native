@@ -61,6 +61,8 @@ describe("SidebarShell", () => {
     // Both the reserved spacer and the panel match the expanded width; no overlay.
     expect(spacer().style.width).toBe("320px");
     expect(panel().style.width).toBe("320px");
+    expect(panel().getAttribute("data-slot")).toBe("navigation-instrument");
+    expect(panel().getAttribute("data-mode")).toBe("expanded");
     expect(panel().getAttribute("data-sidebar-overlay")).toBeNull();
     expect(handle()?.getAttribute("aria-valuenow")).toBe("320");
   });
@@ -144,6 +146,7 @@ describe("SidebarShell", () => {
     expect(spacer().style.width).toBe(`${SIDEBAR_RAIL_WIDTH}px`);
     expect(panel().style.width).toBe(`${SIDEBAR_RAIL_WIDTH}px`);
     expect(panel().getAttribute("data-sidebar-overlay")).toBeNull();
+    expect(panel().getAttribute("data-mode")).toBe("rail");
     expect(handle()).toBeNull();
   });
 
@@ -180,7 +183,7 @@ describe("SidebarShell", () => {
     expect(spacer().style.width).toBe(`${SIDEBAR_RAIL_WIDTH}px`);
     expect(panel().style.width).toBe("300px");
     expect(panel().getAttribute("data-sidebar-overlay")).toBe("");
-    expect(panel().className).toContain("shadow-lg");
+    expect(panel().getAttribute("data-mode")).toBe("peek");
     expect(panel().className).toContain("z-30");
   });
 
