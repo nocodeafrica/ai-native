@@ -43,7 +43,7 @@ expect(() => updateCompanySchema.parse({ workspaceBackgroundPosition: "13% 77%" 
 
 - [ ] **Step 2: Run the test and verify failure**
 
-Run: `pnpm exec vitest run packages/shared/src/validators/company.test.ts`  
+Run: `pnpm exec vitest run packages/shared/src/validators/company.test.ts`
 Expected: FAIL because the appearance fields are stripped or unavailable.
 
 - [ ] **Step 3: Add the closed unions and defaults**
@@ -65,7 +65,7 @@ Extend `Company` and `updateCompanySchema` with nullable `workspaceBackgroundAss
 
 - [ ] **Step 4: Run tests and commit**
 
-Run: `pnpm exec vitest run packages/shared/src/validators/company.test.ts`  
+Run: `pnpm exec vitest run packages/shared/src/validators/company.test.ts`
 Expected: PASS.
 
 Commit exact paths with: `git commit -m "feat(shared): define workspace appearance contract"`.
@@ -82,7 +82,7 @@ Commit exact paths with: `git commit -m "feat(shared): define workspace appearan
 
 - [ ] **Step 1: Add a failing migration inventory assertion**
 
-Extend the schema-table assertion to include `company_workspace_backgrounds`, then run: `pnpm exec vitest run packages/db/src/client.test.ts`.  
+Extend the schema-table assertion to include `company_workspace_backgrounds`, then run: `pnpm exec vitest run packages/db/src/client.test.ts`.
 Expected: FAIL because the table is absent.
 
 - [ ] **Step 2: Add additive schema fields**
@@ -118,7 +118,7 @@ The SQL adds all five columns and the association table with FK, unique indexes,
 
 - [ ] **Step 4: Run DB test and commit**
 
-Run: `pnpm exec vitest run packages/db/src/client.test.ts`  
+Run: `pnpm exec vitest run packages/db/src/client.test.ts`
 Expected: PASS.
 
 Commit exact paths with: `git commit -m "feat(db): persist company workspace appearance"`.
@@ -137,7 +137,7 @@ Commit exact paths with: `git commit -m "feat(db): persist company workspace app
 
 Cover: company responses include defaults; a same-company image asset can become the background; a foreign-company asset returns `422`; clearing the asset removes the link; an unsupported upload returns `422`.
 
-Run: `pnpm exec vitest run server/src/__tests__/company-branding-route.test.ts server/src/__tests__/companies-route-cross-company-authz.test.ts`  
+Run: `pnpm exec vitest run server/src/__tests__/company-branding-route.test.ts server/src/__tests__/companies-route-cross-company-authz.test.ts`
 Expected: FAIL on missing fields and update behavior.
 
 - [ ] **Step 2: Join and resolve the appearance asset**
@@ -159,7 +159,7 @@ Implement `assetsApi.uploadWorkspaceBackground(companyId, file)` through the exi
 
 - [ ] **Step 4: Run focused tests and commit**
 
-Run the two route suites above.  
+Run the two route suites above.
 Expected: PASS.
 
 Commit exact paths with: `git commit -m "feat(api): manage company workspace backgrounds"`.
@@ -176,7 +176,7 @@ Commit exact paths with: `git commit -m "feat(api): manage company workspace bac
 
 Add a fixture whose manifest includes the five appearance fields and `backgroundPath: "images/workspace-background.webp"`. Assert export writes the file and import restores the uploaded association.
 
-Run: `pnpm exec vitest run server/src/__tests__/company-portability.test.ts`  
+Run: `pnpm exec vitest run server/src/__tests__/company-portability.test.ts`
 Expected: FAIL because the manifest drops appearance.
 
 - [ ] **Step 2: Extend the manifest contract**
@@ -196,7 +196,7 @@ Export uploaded bytes using the same safe image-file machinery as the logo. Duri
 
 - [ ] **Step 3: Run portability tests and commit**
 
-Run: `pnpm exec vitest run server/src/__tests__/company-portability.test.ts`  
+Run: `pnpm exec vitest run server/src/__tests__/company-portability.test.ts`
 Expected: PASS.
 
 Commit exact paths with: `git commit -m "feat(portability): preserve workspace appearance"`.
@@ -223,7 +223,7 @@ expect(resolveWorkspaceAppearance(company)).toMatchObject({
 });
 ```
 
-Run: `pnpm exec vitest run ui/src/lib/workspace-appearance.test.ts ui/src/components/Layout.test.tsx`  
+Run: `pnpm exec vitest run ui/src/lib/workspace-appearance.test.ts ui/src/components/Layout.test.tsx`
 Expected: FAIL because the resolver does not exist.
 
 - [ ] **Step 2: Implement the pure resolver**
@@ -259,7 +259,7 @@ Commit exact paths with: `git commit -m "feat(ui): resolve workspace appearance 
 
 Assert that a draft overrides persisted company appearance, clearing restores persisted values, and switching company ids clears the previous draft.
 
-Run: `pnpm exec vitest run ui/src/context/WorkspaceAppearanceContext.test.tsx`  
+Run: `pnpm exec vitest run ui/src/context/WorkspaceAppearanceContext.test.tsx`
 Expected: FAIL because the provider is absent.
 
 - [ ] **Step 2: Implement the narrow context**
@@ -278,7 +278,7 @@ Mount it inside `CompanyProvider`. `Layout` resolves the matching draft, otherwi
 
 - [ ] **Step 3: Run tests and commit**
 
-Run: `pnpm exec vitest run ui/src/context/WorkspaceAppearanceContext.test.tsx ui/src/components/Layout.test.tsx`  
+Run: `pnpm exec vitest run ui/src/context/WorkspaceAppearanceContext.test.tsx ui/src/components/Layout.test.tsx`
 Expected: PASS.
 
 Commit exact paths with: `git commit -m "feat(ui): coordinate workspace appearance previews"`.
@@ -296,7 +296,7 @@ Commit exact paths with: `git commit -m "feat(ui): coordinate workspace appearan
 
 Test keyboard-selectable source cards, immediate preview calls, nine-position selection, upload progress/error, save payload, reset payload, dirty-state navigation cleanup, and that Attachment size limit appears under General.
 
-Run: `pnpm exec vitest run ui/src/components/company-settings/WorkspaceAppearanceEditor.test.tsx ui/src/pages/CompanySettings.test.tsx`  
+Run: `pnpm exec vitest run ui/src/components/company-settings/WorkspaceAppearanceEditor.test.tsx ui/src/pages/CompanySettings.test.tsx`
 Expected: FAIL because the editor is absent.
 
 - [ ] **Step 2: Implement a focused editor component**

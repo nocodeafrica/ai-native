@@ -1,7 +1,7 @@
 # Workspace Appearance Design
 
-**Date:** 2026-07-22  
-**Status:** Approved direction, written-spec review gate  
+**Date:** 2026-07-22
+**Status:** Approved direction, written-spec review gate
 **Scope:** Company Settings appearance controls for the liquid-glass workspace shell
 
 ## Product decision
