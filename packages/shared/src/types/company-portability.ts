@@ -1,6 +1,14 @@
 import type { AgentEnvConfig } from "./secrets.js";
 import type { RoutineVariable } from "./routine.js";
-import type { IssueCommentAuthorType, PermissionKey } from "../constants.js";
+import type {
+  IssueCommentAuthorType,
+  PermissionKey,
+  WorkspaceBackgroundKind,
+  WorkspaceBackgroundPosition,
+  WorkspaceBackgroundPresence,
+  WorkspaceBackgroundPreset,
+  WorkspaceGlassCharacter,
+} from "../constants.js";
 import type { IssueCommentMetadata, IssueCommentPresentation } from "./issue.js";
 
 export interface CompanyPortabilityInclude {
@@ -36,6 +44,12 @@ export interface CompanyPortabilityCompanyManifestEntry {
   description: string | null;
   brandColor: string | null;
   logoPath: string | null;
+  workspaceBackgroundKind: WorkspaceBackgroundKind;
+  workspaceBackgroundPreset: WorkspaceBackgroundPreset;
+  workspaceBackgroundPath: string | null;
+  workspaceBackgroundPosition: WorkspaceBackgroundPosition;
+  workspaceBackgroundPresence: WorkspaceBackgroundPresence;
+  workspaceGlassCharacter: WorkspaceGlassCharacter;
   attachmentMaxBytes: number | null;
   requireBoardApprovalForNewAgents: boolean;
   feedbackDataSharingEnabled: boolean;
