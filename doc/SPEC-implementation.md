@@ -1286,6 +1286,7 @@ Export/import behavior in V1:
 - export strips environment-specific paths (`cwd`, local instruction file paths, inline prompt duplication) while preserving portable project repo/workspace metadata such as `repoUrl`, refs, and workspace-policy references keyed in `.paperclip.yaml`
 - export never includes secret values; env inputs are reported as portable declarations instead
 - export preserves explicit company skill policy and retained legacy skill grants in `.paperclip.yaml`; absence of policy remains the open default
+- export preserves company workspace appearance in `.paperclip.yaml` and includes a custom background image as a portable package file when one is configured
 - import supports target modes:
   - create a new company
   - import into an existing company
