@@ -202,8 +202,9 @@
   --navigation-instrument-fallback: oklch(0.97 0.008 80);
   --navigation-instrument-edge: oklch(1 0 0 / 0.7);
   --navigation-instrument-highlight: oklch(1 0 0 / 0.78);
-  --navigation-instrument-shadow: 0 1.5rem 4rem oklch(0.18 0.02 250 / 0.2), inset 0 1px 0 var(--navigation-instrument-highlight);
-  --navigation-instrument-overlay-shadow: 0 2rem 5rem oklch(0.12 0.02 250 / 0.34), inset 0 1px 0 var(--navigation-instrument-highlight);
+  --navigation-instrument-shadow: 0.8rem 0 2.4rem oklch(0.18 0.02 250 / 0.18), inset -1px 0 0 var(--navigation-instrument-highlight);
+  --navigation-instrument-overlay-shadow: 1.1rem 0 3.4rem oklch(0.12 0.02 250 / 0.3), inset -1px 0 0 var(--navigation-instrument-highlight);
+  --navigation-instrument-mobile-shadow: 0 1.5rem 4rem oklch(0.18 0.02 250 / 0.2), inset 0 1px 0 var(--navigation-instrument-highlight);
   --navigation-instrument-blur: 1.25rem;
   --navigation-instrument-saturation: 1.22;
   --navigation-instrument-inset: 0.5rem;
@@ -279,8 +280,9 @@
   --navigation-instrument-fallback: oklch(0.14 0.018 250);
   --navigation-instrument-edge: oklch(0.92 0.018 230 / 0.2);
   --navigation-instrument-highlight: oklch(0.98 0.012 220 / 0.2);
-  --navigation-instrument-shadow: 0 1.5rem 4rem oklch(0.02 0.01 250 / 0.48), inset 0 1px 0 var(--navigation-instrument-highlight);
-  --navigation-instrument-overlay-shadow: 0 2rem 5rem oklch(0.02 0.01 250 / 0.68), inset 0 1px 0 var(--navigation-instrument-highlight);
+  --navigation-instrument-shadow: 0.85rem 0 2.6rem oklch(0.02 0.01 250 / 0.44), inset -1px 0 0 var(--navigation-instrument-highlight);
+  --navigation-instrument-overlay-shadow: 1.15rem 0 3.6rem oklch(0.02 0.01 250 / 0.62), inset -1px 0 0 var(--navigation-instrument-highlight);
+  --navigation-instrument-mobile-shadow: 0 1.5rem 4rem oklch(0.02 0.01 250 / 0.48), inset 0 1px 0 var(--navigation-instrument-highlight);
   --sidebar-nav-hover-material: radial-gradient(ellipse 42% 90% at 1.5rem 50%, oklch(0.94 0.018 225 / 0.12), transparent 76%);
   --sidebar-nav-selected-material: radial-gradient(ellipse 48% 92% at 1.5rem 50%, oklch(0.94 0.022 220 / 0.2), oklch(0.84 0.018 225 / 0.08) 42%, transparent 78%);
   --sidebar-nav-pressed-material: radial-gradient(ellipse 40% 86% at 1.5rem 50%, oklch(0.84 0.018 225 / 0.14), transparent 70%);
@@ -686,9 +688,10 @@
 
 .navigation-instrument {
   box-sizing: border-box;
-  margin: var(--navigation-instrument-inset) 0 var(--navigation-instrument-inset) var(--navigation-instrument-inset);
-  border: 1px solid var(--navigation-instrument-edge);
-  border-radius: var(--navigation-instrument-radius);
+  margin: 0;
+  border: 0;
+  border-right: 1px solid var(--navigation-instrument-edge);
+  border-radius: 0;
   background: var(--navigation-instrument-fill);
   box-shadow: var(--navigation-instrument-shadow);
   backdrop-filter: blur(var(--navigation-instrument-blur)) saturate(var(--navigation-instrument-saturation));
@@ -697,6 +700,13 @@
 
 .navigation-instrument[data-sidebar-overlay] {
   box-shadow: var(--navigation-instrument-overlay-shadow);
+}
+
+.navigation-instrument-mobile {
+  margin: var(--navigation-instrument-inset) 0 var(--navigation-instrument-inset) var(--navigation-instrument-inset);
+  border: 1px solid var(--navigation-instrument-edge);
+  border-radius: var(--navigation-instrument-radius);
+  box-shadow: var(--navigation-instrument-mobile-shadow);
 }
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
