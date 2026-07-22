@@ -15,16 +15,24 @@ const sidebarState = vi.hoisted(() => ({
   peeking: false,
 }));
 
+const routeState = vi.hoisted(() => ({ isActive: false }));
+
 vi.mock("@/lib/router", () => ({
-  NavLink: ({ children, to, className, ...props }: {
+  NavLink: ({ children, to, className, "aria-current": ariaCurrent, ...props }: {
     children: ReactNode | ((state: { isActive: boolean }) => ReactNode);
     to: string;
     className?: string | ((state: { isActive: boolean }) => string);
+    "aria-current"?: "page";
   }) => {
-    const resolvedClassName = typeof className === "function" ? className({ isActive: false }) : className;
-    const resolvedChildren = typeof children === "function" ? children({ isActive: false }) : children;
+    const resolvedClassName = typeof className === "function" ? className(routeState) : className;
+    const resolvedChildren = typeof children === "function" ? children(routeState) : children;
     return (
-      <a href={to} className={resolvedClassName} {...props}>
+      <a
+        href={to}
+        className={resolvedClassName}
+        aria-current={ariaCurrent ?? (routeState.isActive ? "page" : undefined)}
+        {...props}
+      >
         {resolvedChildren}
       </a>
     );
@@ -45,6 +53,7 @@ describe("SidebarNavItem", () => {
   beforeEach(() => {
     sidebarState.collapsed = false;
     sidebarState.peeking = false;
+    routeState.isActive = false;
     container = document.createElement("div");
     document.body.appendChild(container);
     root = createRoot(container);
@@ -71,6 +80,28 @@ describe("SidebarNavItem", () => {
   function classTokens(element: Element | null | undefined) {
     return element?.className.toString().split(/\s+/).filter(Boolean) ?? [];
   }
+
+  it("uses a neutral state hook instead of the generic accent pill", () => {
+    render(<SidebarNavItem to="/inbox" label="Inbox" icon={Inbox} />);
+
+    expect(link().getAttribute("data-slot")).toBe("sidebar-nav-item");
+    expect(link().className).toContain("sidebar-nav-item");
+    expect(link().className).not.toContain("bg-accent");
+  });
+
+  it("exposes route and explicit selected states without a semantic color", () => {
+    routeState.isActive = true;
+    render(<SidebarNavItem to="/inbox" label="Inbox" icon={Inbox} />);
+
+    expect(link().getAttribute("aria-current")).toBe("page");
+    expect(link().className).toContain("sidebar-nav-item--selected");
+    expect(link().className).not.toContain("bg-accent");
+
+    routeState.isActive = false;
+    render(<SidebarNavItem to="/agents/codex" label="Codex" icon={Inbox} active />);
+    expect(link().getAttribute("aria-current")).toBe("page");
+    expect(link().className).toContain("sidebar-nav-item--selected");
+  });
 
   it("shows the full label and numeric badge when expanded", () => {
     render(<SidebarNavItem to="/inbox" label="Inbox" icon={Inbox} badge={28} badgeLabel="unread" />);
