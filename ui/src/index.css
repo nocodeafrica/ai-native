@@ -193,6 +193,11 @@
   --gtc-folder-row-actions: 1rem minmax(0, 1fr) auto auto;
   --sz-folder-rail: 13.25rem;
   --sz-folder-sheet-max: 80dvh;
+  --workspace-image: url("/backgrounds/ainative-ambient.webp");
+  --workspace-image-position: 50% 50%;
+  --workspace-wash: linear-gradient(135deg, oklch(0.99 0.008 80 / 0.92), oklch(0.96 0.012 245 / 0.86));
+  --workspace-vignette: radial-gradient(ellipse at 42% 34%, transparent 18%, oklch(0.28 0.018 250 / 0.18) 100%);
+  --workspace-content-surface: color-mix(in oklab, var(--background) 91%, transparent);
 }
 
 .dark {
@@ -253,6 +258,9 @@
   --status-task-icon-in_review: #9474f0;  /* deeper than violet-400, reads purple */
   --status-task-icon-done: #34d06f;
   --status-task-icon-cancelled: #9a958a;
+  --workspace-wash: linear-gradient(126deg, oklch(0.09 0.012 260 / 0.76), oklch(0.12 0.018 235 / 0.6));
+  --workspace-vignette: radial-gradient(ellipse at 46% 38%, transparent 8%, oklch(0.03 0.01 250 / 0.72) 100%);
+  --workspace-content-surface: color-mix(in oklab, var(--background) 88%, transparent);
 }
 
 ::highlight(paperclip-doc-annotation-open) {
@@ -310,6 +318,33 @@
   .paperclip-mdxeditor-content {
     font-family: inherit;
   }
+}
+
+.workspace-shell {
+  position: relative;
+  isolation: isolate;
+  background: var(--background);
+}
+
+.workspace-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-color: var(--background);
+  background-image: var(--workspace-vignette), var(--workspace-wash), var(--workspace-image);
+  background-position: center, center, var(--workspace-image-position);
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.workspace-foreground {
+  position: relative;
+  z-index: 1;
+}
+
+.workspace-content-surface {
+  background: var(--workspace-content-surface);
 }
 
 @media (pointer: coarse) {
