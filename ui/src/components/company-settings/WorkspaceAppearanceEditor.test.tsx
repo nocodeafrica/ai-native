@@ -47,7 +47,7 @@ const company: Company = {
 };
 
 async function act(callback: () => void | Promise<void>) {
-  let result: void | Promise<void>;
+  let result: void | Promise<void> = undefined;
   flushSync(() => { result = callback(); });
   await result;
 }
