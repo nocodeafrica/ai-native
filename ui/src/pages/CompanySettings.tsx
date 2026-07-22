@@ -14,6 +14,7 @@ import { Link } from "@/lib/router";
 import { Button } from "@/components/ui/button";
 import { Settings, CloudUpload, Download, Upload } from "lucide-react";
 import { CompanyPatternIcon } from "../components/CompanyPatternIcon";
+import { WorkspaceAppearanceEditor } from "../components/company-settings/WorkspaceAppearanceEditor";
 import {
   Field,
   ToggleField,
@@ -203,6 +204,30 @@ export function CompanySettings() {
               onChange={(e) => setDescription(e.target.value)}
             />
           </Field>
+          <Field
+            label="Attachment size limit"
+            hint={`Accepted range: 1-${MAX_COMPANY_ATTACHMENT_MAX_MIB} MiB.`}
+          >
+            <div className="flex flex-col gap-1.5">
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  min={1}
+                  max={MAX_COMPANY_ATTACHMENT_MAX_MIB}
+                  step={1}
+                  value={attachmentMaxMiB}
+                  onChange={(e) => setAttachmentMaxMiB(e.target.value)}
+                  className="w-28 rounded-md border border-border bg-transparent px-2.5 py-1.5 text-sm outline-none"
+                />
+                <span className="text-xs text-muted-foreground">MiB</span>
+              </div>
+              {!attachmentMaxValid && (
+                <span className="text-xs text-destructive">
+                  Enter a whole number from 1 to {MAX_COMPANY_ATTACHMENT_MAX_MIB}.
+                </span>
+              )}
+            </div>
+          </Field>
         </div>
       </div>
 
@@ -299,31 +324,10 @@ export function CompanySettings() {
                   )}
                 </div>
               </Field>
-              <Field
-                label="Attachment size limit"
-                hint={`Accepted range: 1-${MAX_COMPANY_ATTACHMENT_MAX_MIB} MiB.`}
-              >
-                <div className="flex flex-col gap-1.5">
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      min={1}
-                      max={MAX_COMPANY_ATTACHMENT_MAX_MIB}
-                      step={1}
-                      value={attachmentMaxMiB}
-                      onChange={(e) => setAttachmentMaxMiB(e.target.value)}
-                      className="w-28 rounded-md border border-border bg-transparent px-2.5 py-1.5 text-sm outline-none"
-                    />
-                    <span className="text-xs text-muted-foreground">MiB</span>
-                  </div>
-                  {!attachmentMaxValid && (
-                    <span className="text-xs text-destructive">
-                      Enter a whole number from 1 to {MAX_COMPANY_ATTACHMENT_MAX_MIB}.
-                    </span>
-                  )}
-                </div>
-              </Field>
             </div>
+          </div>
+          <div className="border-t border-border pt-4">
+            <WorkspaceAppearanceEditor company={selectedCompany} />
           </div>
         </div>
       </div>
