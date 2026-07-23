@@ -68,7 +68,7 @@ export function Sidebar() {
     resourceKey: "live-runs",
     queryKey: liveRunsQueryKey,
     enabled: !!selectedCompanyId,
-    // Event-sourced via LiveUpdatesProvider (#9627) + reconnect reconcile — no
+    // Event-sourced via LiveUpdatesProvider (PAP-9627) + reconnect reconcile — no
     // interval poll needed. Polling here also re-armed React Query's timer on
     // every live-event cache write, a major source of steady-state churn.
     refetchInterval: false,
@@ -116,7 +116,10 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="w-full h-full min-h-0 border-r border-border bg-background flex flex-col">
+    <aside
+      className="w-full h-full min-h-0 flex flex-col"
+      data-slot="navigation-sidebar"
+    >
       {/* Top bar: Company name (bold) + Search — aligned with top sections (no visible border) */}
       <div className="flex items-center gap-1 px-3 h-12 shrink-0">
         <SidebarCompanyMenu />

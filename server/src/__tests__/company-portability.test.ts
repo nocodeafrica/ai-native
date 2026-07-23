@@ -875,6 +875,125 @@ describe("company portability", () => {
     expect(exported.files[".paperclip.yaml"]).toContain('logoPath: "images/company-logo.png"');
   });
 
+  it("round-trips workspace appearance and an uploaded background image", async () => {
+    const storage = {
+      getObject: vi.fn().mockResolvedValue({
+        stream: Readable.from([Buffer.from("background-bytes")]),
+      }),
+      putFile: vi.fn().mockResolvedValue({
+        provider: "local_disk",
+        objectKey: "assets/workspace-backgrounds/imported-background",
+        contentType: "image/webp",
+        byteSize: 16,
+        sha256: "background-sha",
+        originalFilename: "workspace-background.webp",
+      }),
+    };
+    companySvc.getById.mockResolvedValue({
+      id: "company-1",
+      name: "Paperclip",
+      description: null,
+      issuePrefix: "PAP",
+      brandColor: "#5c5fff",
+      logoAssetId: null,
+      logoUrl: null,
+      workspaceBackgroundKind: "upload",
+      workspaceBackgroundPreset: "bg_005",
+      workspaceBackgroundAssetId: "background-1",
+      workspaceBackgroundUrl: "/api/assets/background-1/content",
+      workspaceBackgroundPosition: "top-right",
+      workspaceBackgroundPresence: "vivid",
+      workspaceGlassCharacter: "clear",
+      requireBoardApprovalForNewAgents: false,
+    });
+    assetSvc.getById.mockResolvedValue({
+      id: "background-1",
+      companyId: "company-1",
+      objectKey: "assets/companies/background-1",
+      contentType: "image/webp",
+      originalFilename: "custom-background.webp",
+    });
+    companySvc.create.mockResolvedValue({
+      id: "company-imported",
+      name: "Imported Paperclip",
+      workspaceBackgroundAssetId: null,
+    });
+    companySvc.update.mockResolvedValue({
+      id: "company-imported",
+      name: "Imported Paperclip",
+      workspaceBackgroundAssetId: "asset-created",
+    });
+    agentSvc.list.mockResolvedValue([]);
+
+    const portability = companyPortabilityService({} as any, storage as any);
+    const exported = await portability.exportBundle("company-1", {
+      include: {
+        company: true,
+        agents: false,
+        projects: false,
+        issues: false,
+      },
+    });
+
+    expect(storage.getObject).toHaveBeenCalledWith("company-1", "assets/companies/background-1");
+    expect(exported.files["images/workspace-background.webp"]).toEqual({
+      encoding: "base64",
+      data: Buffer.from("background-bytes").toString("base64"),
+      contentType: "image/webp",
+    });
+    expect(asTextFile(exported.files[".paperclip.yaml"])).toContain([
+      'workspaceBackgroundKind: "upload"',
+      'workspaceBackgroundPreset: "bg_005"',
+      'workspaceBackgroundPath: "images/workspace-background.webp"',
+      'workspaceBackgroundPosition: "top-right"',
+      'workspaceBackgroundPresence: "vivid"',
+      'workspaceGlassCharacter: "clear"',
+    ].join("\n  "));
+
+    await portability.importBundle({
+      source: {
+        type: "inline",
+        rootPath: exported.rootPath,
+        files: exported.files,
+      },
+      include: {
+        company: true,
+        agents: false,
+        projects: false,
+        issues: false,
+      },
+      target: {
+        mode: "new_company",
+        newCompanyName: "Imported Paperclip",
+      },
+      agents: "all",
+      collisionStrategy: "rename",
+    }, "user-1");
+
+    expect(companySvc.create).toHaveBeenCalledWith(expect.objectContaining({
+      workspaceBackgroundKind: "upload",
+      workspaceBackgroundPreset: "bg_005",
+      workspaceBackgroundPosition: "top-right",
+      workspaceBackgroundPresence: "vivid",
+      workspaceGlassCharacter: "clear",
+    }));
+    expect(storage.putFile).toHaveBeenCalledWith(expect.objectContaining({
+      companyId: "company-imported",
+      namespace: "assets/workspace-backgrounds",
+      originalFilename: "workspace-background.webp",
+      contentType: "image/webp",
+      body: Buffer.from("background-bytes"),
+    }));
+    expect(assetSvc.create).toHaveBeenCalledWith("company-imported", expect.objectContaining({
+      objectKey: "assets/workspace-backgrounds/imported-background",
+      contentType: "image/webp",
+      createdByUserId: "user-1",
+    }));
+    expect(companySvc.update).toHaveBeenCalledWith("company-imported", {
+      workspaceBackgroundAssetId: "asset-created",
+    });
+  });
+
   it("exports duplicate skill slugs into readable namespaced paths", async () => {
     const portability = companyPortabilityService({} as any);
 

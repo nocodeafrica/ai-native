@@ -193,6 +193,26 @@
   --gtc-folder-row-actions: 1rem minmax(0, 1fr) auto auto;
   --sz-folder-rail: 13.25rem;
   --sz-folder-sheet-max: 80dvh;
+  --workspace-image: url("/backgrounds/ainative-ambient.webp");
+  --workspace-image-position: 50% 50%;
+  --workspace-wash: linear-gradient(135deg, oklch(0.99 0.008 80 / 0.92), oklch(0.96 0.012 245 / 0.86));
+  --workspace-vignette: radial-gradient(ellipse at 42% 34%, transparent 18%, oklch(0.28 0.018 250 / 0.18) 100%);
+  --workspace-content-surface: color-mix(in oklab, var(--background) 91%, transparent);
+  --navigation-instrument-fill: oklch(0.99 0.006 80 / 0.74);
+  --navigation-instrument-fallback: oklch(0.97 0.008 80);
+  --navigation-instrument-edge: oklch(1 0 0 / 0.7);
+  --navigation-instrument-highlight: oklch(1 0 0 / 0.78);
+  --navigation-instrument-shadow: 0.8rem 0 2.4rem oklch(0.18 0.02 250 / 0.18), inset -1px 0 0 var(--navigation-instrument-highlight);
+  --navigation-instrument-overlay-shadow: 1.1rem 0 3.4rem oklch(0.12 0.02 250 / 0.3), inset -1px 0 0 var(--navigation-instrument-highlight);
+  --navigation-instrument-mobile-shadow: 0 1.5rem 4rem oklch(0.18 0.02 250 / 0.2), inset 0 1px 0 var(--navigation-instrument-highlight);
+  --navigation-instrument-blur: 1.25rem;
+  --navigation-instrument-saturation: 1.22;
+  --navigation-instrument-inset: 0.5rem;
+  --navigation-instrument-radius: 1.125rem;
+  --sidebar-nav-hover-material: radial-gradient(circle at 1.5rem 50%, oklch(0.32 0.01 250 / 0.12), transparent 72%);
+  --sidebar-nav-selected-material: linear-gradient(180deg, oklch(1 0 0 / 0.62), transparent 1px), radial-gradient(circle at 1.5rem 50%, oklch(0.32 0.012 250 / 0.19), transparent 78%);
+  --sidebar-nav-pressed-material: radial-gradient(circle at 1.5rem 50%, oklch(0.28 0.01 250 / 0.16), transparent 64%);
+  --sidebar-nav-focus: oklch(0.43 0.018 250 / 0.72);
 }
 
 .dark {
@@ -253,6 +273,20 @@
   --status-task-icon-in_review: #9474f0;  /* deeper than violet-400, reads purple */
   --status-task-icon-done: #34d06f;
   --status-task-icon-cancelled: #9a958a;
+  --workspace-wash: linear-gradient(126deg, oklch(0.09 0.012 260 / 0.52), oklch(0.12 0.018 235 / 0.42));
+  --workspace-vignette: radial-gradient(ellipse at 46% 38%, transparent 8%, oklch(0.03 0.01 250 / 0.52) 100%);
+  --workspace-content-surface: color-mix(in oklab, var(--background) 91%, transparent);
+  --navigation-instrument-fill: oklch(0.12 0.018 250 / 0.56);
+  --navigation-instrument-fallback: oklch(0.14 0.018 250);
+  --navigation-instrument-edge: oklch(0.92 0.018 230 / 0.2);
+  --navigation-instrument-highlight: oklch(0.98 0.012 220 / 0.2);
+  --navigation-instrument-shadow: 0.85rem 0 2.6rem oklch(0.02 0.01 250 / 0.44), inset -1px 0 0 var(--navigation-instrument-highlight);
+  --navigation-instrument-overlay-shadow: 1.15rem 0 3.6rem oklch(0.02 0.01 250 / 0.62), inset -1px 0 0 var(--navigation-instrument-highlight);
+  --navigation-instrument-mobile-shadow: 0 1.5rem 4rem oklch(0.02 0.01 250 / 0.48), inset 0 1px 0 var(--navigation-instrument-highlight);
+  --sidebar-nav-hover-material: radial-gradient(ellipse 42% 90% at 1.5rem 50%, oklch(0.94 0.018 225 / 0.12), transparent 76%);
+  --sidebar-nav-selected-material: radial-gradient(ellipse 48% 92% at 1.5rem 50%, oklch(0.94 0.022 220 / 0.2), oklch(0.84 0.018 225 / 0.08) 42%, transparent 78%);
+  --sidebar-nav-pressed-material: radial-gradient(ellipse 40% 86% at 1.5rem 50%, oklch(0.84 0.018 225 / 0.14), transparent 70%);
+  --sidebar-nav-focus: oklch(0.88 0.024 220 / 0.76);
 }
 
 ::highlight(paperclip-doc-annotation-open) {
@@ -309,6 +343,424 @@
   .paperclip-mdxeditor [class*="_placeholder_"],
   .paperclip-mdxeditor-content {
     font-family: inherit;
+  }
+}
+
+.workspace-shell {
+  position: relative;
+  isolation: isolate;
+  background: var(--background);
+}
+
+.workspace-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-color: var(--background);
+  background-image: var(--workspace-vignette), var(--workspace-wash), var(--workspace-image);
+  background-position: center, center, var(--workspace-image-position);
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.workspace-foreground {
+  position: relative;
+  z-index: 1;
+}
+
+.workspace-content-surface {
+  background: var(--workspace-content-surface);
+}
+
+.workspace-shell[data-background-presence="quiet"] {
+  --workspace-content-surface: color-mix(in oklab, var(--background) 95%, transparent);
+}
+
+.workspace-shell[data-background-presence="balanced"] {
+  --workspace-content-surface: color-mix(in oklab, var(--background) 91%, transparent);
+}
+
+.workspace-shell[data-background-presence="vivid"] {
+  --workspace-content-surface: color-mix(in oklab, var(--background) 80%, transparent);
+}
+
+.workspace-shell[data-glass-character="soft"] {
+  --navigation-instrument-fill: color-mix(in oklab, var(--background) 72%, transparent);
+  --navigation-instrument-blur: 1.55rem;
+  --navigation-instrument-saturation: 1.12;
+}
+
+.workspace-shell[data-glass-character="clear"] {
+  --navigation-instrument-fill: color-mix(in oklab, var(--background) 42%, transparent);
+  --navigation-instrument-blur: 0.85rem;
+  --navigation-instrument-saturation: 1.35;
+}
+
+.workspace-appearance-editor {
+  --workspace-appearance-choice-fill: color-mix(in oklab, var(--background) 58%, transparent);
+  --workspace-appearance-choice-selected: color-mix(in oklab, var(--foreground) 9%, transparent);
+  --workspace-appearance-gallery-min: 7.6rem;
+  --workspace-appearance-motion-duration: 150ms;
+  --workspace-appearance-motion-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --workspace-appearance-preview-height: 15rem;
+  --workspace-appearance-sidebar-width: 29%;
+  --workspace-appearance-position-size: 1.25rem;
+}
+
+.workspace-appearance-preview {
+  position: relative;
+  height: var(--workspace-appearance-preview-height);
+  overflow: hidden;
+  border: 1px solid var(--navigation-instrument-edge);
+  border-radius: var(--navigation-instrument-radius);
+  background: var(--background);
+  box-shadow: inset 0 1px 0 var(--navigation-instrument-highlight);
+}
+
+.workspace-appearance-preview-image {
+  position: absolute;
+  inset: 0;
+  background-color: var(--background);
+  background-image: var(--workspace-vignette), var(--workspace-wash), var(--workspace-image);
+  background-position: center, center, var(--workspace-image-position);
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.workspace-appearance-preview-sidebar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  display: flex;
+  width: var(--workspace-appearance-sidebar-width);
+  flex-direction: column;
+  gap: 0.65rem;
+  margin: 0.5rem;
+  padding: 0.85rem;
+  border: 1px solid var(--navigation-instrument-edge);
+  border-radius: calc(var(--navigation-instrument-radius) - 0.2rem);
+  background: var(--navigation-instrument-fill);
+  box-shadow: var(--navigation-instrument-shadow);
+  backdrop-filter: blur(var(--navigation-instrument-blur)) saturate(var(--navigation-instrument-saturation));
+}
+
+.workspace-appearance-preview-mark {
+  width: 1.55rem;
+  height: 1.55rem;
+  margin-bottom: 0.35rem;
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--foreground) 78%, transparent);
+}
+
+.workspace-appearance-preview-line {
+  display: block;
+  width: 70%;
+  height: 0.38rem;
+  border-radius: 999rem;
+  background: color-mix(in oklab, var(--foreground) 18%, transparent);
+}
+
+.workspace-appearance-preview-line-active {
+  width: 88%;
+  background: color-mix(in oklab, var(--foreground) 42%, transparent);
+  box-shadow: 0 0 1.2rem color-mix(in oklab, var(--foreground) 14%, transparent);
+}
+
+.workspace-appearance-preview-content {
+  position: absolute;
+  inset: 0 0 0 var(--workspace-appearance-sidebar-width);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 2.4rem;
+  background: var(--workspace-content-surface);
+}
+
+.workspace-appearance-preview-content strong {
+  font-size: 1.4rem;
+  font-weight: 520;
+  letter-spacing: -0.035em;
+}
+
+.workspace-appearance-preview-content > span:last-child {
+  max-width: 24rem;
+  color: var(--muted-foreground);
+  font-size: var(--text-xs);
+}
+
+.workspace-appearance-preview-kicker {
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: var(--text-nano);
+  letter-spacing: var(--tracking-caps);
+}
+
+.workspace-appearance-preview[data-background-presence="quiet"] {
+  --workspace-content-surface: color-mix(in oklab, var(--background) 95%, transparent);
+}
+
+.workspace-appearance-preview[data-background-presence="vivid"] {
+  --workspace-content-surface: color-mix(in oklab, var(--background) 80%, transparent);
+}
+
+.workspace-appearance-preview[data-glass-character="soft"] {
+  --navigation-instrument-fill: color-mix(in oklab, var(--background) 72%, transparent);
+  --navigation-instrument-blur: 1.55rem;
+  --navigation-instrument-saturation: 1.12;
+}
+
+.workspace-appearance-preview[data-glass-character="clear"] {
+  --navigation-instrument-fill: color-mix(in oklab, var(--background) 42%, transparent);
+  --navigation-instrument-blur: 0.85rem;
+  --navigation-instrument-saturation: 1.35;
+}
+
+.workspace-appearance-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--workspace-appearance-gallery-min), 1fr));
+  gap: 0.6rem;
+}
+
+.workspace-appearance-background-tile {
+  position: relative;
+  display: flex;
+  aspect-ratio: 16 / 9;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid color-mix(in oklab, var(--foreground) 12%, var(--border));
+  border-radius: var(--radius-md);
+  background: color-mix(in oklab, var(--background) 62%, transparent);
+  color: var(--muted-foreground);
+  box-shadow: inset 0 1px 0 color-mix(in oklab, var(--foreground) 6%, transparent);
+  transition: border-color var(--workspace-appearance-motion-duration) var(--workspace-appearance-motion-ease),
+    box-shadow var(--workspace-appearance-motion-duration) var(--workspace-appearance-motion-ease),
+    transform var(--workspace-appearance-motion-duration) var(--workspace-appearance-motion-ease);
+}
+
+.workspace-appearance-background-tile > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.workspace-appearance-background-tile:hover {
+  z-index: 1;
+  border-color: color-mix(in oklab, var(--foreground) 32%, var(--border));
+  box-shadow: inset 0 1px 0 color-mix(in oklab, var(--foreground) 12%, transparent),
+    0 0.55rem 1.5rem color-mix(in oklab, var(--background) 58%, transparent);
+  transform: translateY(-0.08rem);
+}
+
+.workspace-appearance-background-tile-selected {
+  border-color: color-mix(in oklab, var(--foreground) 54%, var(--border));
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--foreground) 25%, transparent),
+    inset 0 1px 0 color-mix(in oklab, var(--foreground) 18%, transparent),
+    0 0.6rem 1.6rem color-mix(in oklab, var(--background) 48%, transparent);
+}
+
+.workspace-appearance-background-tile-label {
+  position: absolute;
+  inset: auto 0 0;
+  overflow: hidden;
+  padding: 0.45rem 0.55rem;
+  background: color-mix(in oklab, var(--background) 66%, transparent);
+  color: color-mix(in oklab, var(--foreground) 88%, transparent);
+  font-size: var(--text-nano);
+  font-weight: 540;
+  line-height: 1.15;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  backdrop-filter: blur(0.7rem) saturate(1.2);
+}
+
+.workspace-appearance-background-tile-check {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.45rem;
+  width: 1.2rem;
+  height: 1.2rem;
+  padding: 0.25rem;
+  border: 1px solid color-mix(in oklab, var(--foreground) 28%, transparent);
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--background) 72%, transparent);
+  color: var(--foreground);
+  box-shadow: 0 0.25rem 0.8rem color-mix(in oklab, var(--background) 52%, transparent);
+  backdrop-filter: blur(0.55rem);
+}
+
+.workspace-appearance-background-tile-none,
+.workspace-appearance-background-tile-upload:not(:has(img)) {
+  background-image: radial-gradient(
+    circle at 72% 18%,
+    color-mix(in oklab, var(--foreground) 10%, transparent),
+    transparent 58%
+  );
+}
+
+.workspace-appearance-background-tile:disabled {
+  cursor: wait;
+  opacity: 0.68;
+}
+
+.workspace-appearance-choice {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.7rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--workspace-appearance-choice-fill);
+  color: var(--foreground);
+  text-align: left;
+}
+
+.workspace-appearance-choice:hover {
+  border-color: color-mix(in oklab, var(--foreground) 24%, var(--border));
+  background: color-mix(in oklab, var(--foreground) 6%, transparent);
+}
+
+.workspace-appearance-choice-selected {
+  border-color: color-mix(in oklab, var(--foreground) 30%, var(--border));
+  background: var(--workspace-appearance-choice-selected);
+  box-shadow: inset 0 1px 0 color-mix(in oklab, var(--foreground) 12%, transparent);
+}
+
+.workspace-appearance-choice:focus-visible,
+.workspace-appearance-background-tile:focus-visible,
+.workspace-appearance-position:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.workspace-appearance-position-grid {
+  display: grid;
+  width: max-content;
+  grid-template-columns: repeat(3, var(--workspace-appearance-position-size));
+  gap: 0.35rem;
+  padding: 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: color-mix(in oklab, var(--background) 55%, transparent);
+}
+
+.workspace-appearance-position {
+  position: relative;
+  width: var(--workspace-appearance-position-size);
+  height: var(--workspace-appearance-position-size);
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--foreground) 12%, transparent);
+}
+
+.workspace-appearance-position::after {
+  content: "";
+  position: absolute;
+  inset: 34%;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.workspace-appearance-position:hover {
+  background: color-mix(in oklab, var(--foreground) 22%, transparent);
+}
+
+.workspace-appearance-position[data-selected="true"]::after {
+  background: var(--foreground);
+  box-shadow: 0 0 0.65rem color-mix(in oklab, var(--foreground) 34%, transparent);
+}
+
+@media (max-width: 640px) {
+  .workspace-appearance-editor {
+    --workspace-appearance-preview-height: 12rem;
+    --workspace-appearance-sidebar-width: 34%;
+  }
+
+  .workspace-appearance-preview-content {
+    padding: 1.35rem;
+  }
+}
+
+.navigation-instrument {
+  box-sizing: border-box;
+  margin: 0;
+  border: 0;
+  border-right: 1px solid var(--navigation-instrument-edge);
+  border-radius: 0;
+  background: var(--navigation-instrument-fill);
+  box-shadow: var(--navigation-instrument-shadow);
+  backdrop-filter: blur(var(--navigation-instrument-blur)) saturate(var(--navigation-instrument-saturation));
+  -webkit-backdrop-filter: blur(var(--navigation-instrument-blur)) saturate(var(--navigation-instrument-saturation));
+}
+
+.navigation-instrument[data-sidebar-overlay] {
+  box-shadow: var(--navigation-instrument-overlay-shadow);
+}
+
+.navigation-instrument-mobile {
+  margin: var(--navigation-instrument-inset) 0 var(--navigation-instrument-inset) var(--navigation-instrument-inset);
+  border: 1px solid var(--navigation-instrument-edge);
+  border-radius: var(--navigation-instrument-radius);
+  box-shadow: var(--navigation-instrument-mobile-shadow);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .navigation-instrument {
+    background: var(--navigation-instrument-fallback);
+  }
+}
+
+.sidebar-nav-item {
+  position: relative;
+  isolation: isolate;
+  outline: none;
+  transition: color 140ms ease;
+}
+
+.sidebar-nav-item::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--sidebar-nav-hover-material);
+  opacity: 0;
+  transition: opacity 140ms ease, background 140ms ease;
+}
+
+.sidebar-nav-item:hover {
+  color: var(--foreground);
+}
+
+.sidebar-nav-item:hover::before {
+  opacity: 1;
+}
+
+.sidebar-nav-item--selected::before,
+.sidebar-nav-item[aria-current="page"]::before {
+  background: var(--sidebar-nav-selected-material);
+  opacity: 1;
+}
+
+.sidebar-nav-item:active::before {
+  background: var(--sidebar-nav-pressed-material);
+  opacity: 1;
+}
+
+.sidebar-nav-item:focus-visible {
+  outline: 2px solid var(--sidebar-nav-focus);
+  outline-offset: -1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-nav-item,
+  .sidebar-nav-item::before {
+    transition: none;
   }
 }
 

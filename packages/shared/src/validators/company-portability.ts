@@ -1,5 +1,12 @@
 import { z } from "zod";
-import { PERMISSION_KEYS } from "../constants.js";
+import {
+  PERMISSION_KEYS,
+  WORKSPACE_BACKGROUND_KINDS,
+  WORKSPACE_BACKGROUND_POSITIONS,
+  WORKSPACE_BACKGROUND_PRESENCES,
+  WORKSPACE_BACKGROUND_PRESETS,
+  WORKSPACE_GLASS_CHARACTERS,
+} from "../constants.js";
 import { MAX_COMPANY_ATTACHMENT_MAX_BYTES } from "../constants.js";
 import {
   issueCommentAuthorTypeSchema,
@@ -44,6 +51,12 @@ export const portabilityCompanyManifestEntrySchema = z.object({
   description: z.string().nullable(),
   brandColor: z.string().nullable(),
   logoPath: z.string().nullable(),
+  workspaceBackgroundKind: z.enum(WORKSPACE_BACKGROUND_KINDS).default("preset"),
+  workspaceBackgroundPreset: z.enum(WORKSPACE_BACKGROUND_PRESETS).default("ainative-ambient"),
+  workspaceBackgroundPath: z.string().nullable().default(null),
+  workspaceBackgroundPosition: z.enum(WORKSPACE_BACKGROUND_POSITIONS).default("center"),
+  workspaceBackgroundPresence: z.enum(WORKSPACE_BACKGROUND_PRESENCES).default("balanced"),
+  workspaceGlassCharacter: z.enum(WORKSPACE_GLASS_CHARACTERS).default("balanced"),
   attachmentMaxBytes: z.number().int().min(1).max(MAX_COMPANY_ATTACHMENT_MAX_BYTES).nullable().default(null),
   requireBoardApprovalForNewAgents: z.boolean(),
   feedbackDataSharingEnabled: z.boolean().default(false),

@@ -167,6 +167,12 @@ These rows are company-scoped and user-scoped. A missing row means the user is j
 
 Both tables use a unique key on `(company_id, user_id, resource_id)` and keep `state` as `joined` or `left`. Join/leave mutations are idempotent board-user `/me` operations and write activity entries when the effective state changes.
 
+## Company workspace appearance
+
+Workspace appearance is company-scoped. The `companies` row stores the selected background kind, preset, position, presence, and glass character. A custom uploaded background is linked through `company_workspace_backgrounds`, which keeps one asset per company and requires each linked asset to belong to only one company background.
+
+Both foreign keys cascade on deletion: deleting a company removes its background link, and deleting the underlying asset clears the link. Company portability exports the appearance fields and, when present, the custom background file so an imported company can restore the same workspace treatment.
+
 ## Decision training snapshot retention
 
 `decision_training_examples` stores a point-in-time copy of an issue, its comments, relevant runs, and the selected decision. Each row carries the `scrub_deleted_comments_v1` retention policy marker, and JSONL exports include that marker alongside the snapshot.

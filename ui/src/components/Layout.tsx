@@ -27,6 +27,7 @@ import { useDialogActions } from "../context/DialogContext";
 import { GeneralSettingsProvider } from "../context/GeneralSettingsContext";
 import { usePanel } from "../context/PanelContext";
 import { useCompany } from "../context/CompanyContext";
+import { useWorkspaceAppearancePreview } from "../context/WorkspaceAppearanceContext";
 import { useSidebar } from "../context/SidebarContext";
 import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts";
 import { useAppsEnabled } from "../hooks/useAppsEnabled";
@@ -44,6 +45,10 @@ import { queryKeys } from "../lib/queryKeys";
 import { scheduleMainContentFocus } from "../lib/main-content-focus";
 import { pinDocumentScrollToZero } from "../lib/pin-document-scroll";
 import { cn } from "../lib/utils";
+import {
+  appearanceFromCompany,
+  resolveWorkspaceAppearance,
+} from "../lib/workspace-appearance";
 import { NotFoundPage } from "../pages/NotFound";
 import { PluginSlotMount, resolveRouteSidebarSlot, usePluginSlots } from "../plugins/slots";
 
@@ -93,6 +98,12 @@ export function Layout() {
     selectionSource,
     setSelectedCompanyId,
   } = useCompany();
+  const { draft: appearanceDraft } = useWorkspaceAppearancePreview();
+  const workspaceAppearance = resolveWorkspaceAppearance(
+    appearanceDraft?.companyId === selectedCompanyId
+      ? appearanceDraft.appearance
+      : appearanceFromCompany(selectedCompany),
+  );
   const {
     companyPrefix,
     pluginRoutePath: matchedPluginRoutePath,
@@ -536,13 +547,25 @@ export function Layout() {
     <GeneralSettingsProvider value={{ keyboardShortcutsEnabled }}>
       <div
       className={cn(
-        "bg-background text-foreground pt-(--sz-safe-top)",
+        "workspace-shell bg-background text-foreground",
         // overflow-x-clip on mobile keeps a stray wide descendant from making the
         // whole viewport scroll horizontally. clip (not hidden) leaves overflow-y
         // computed as visible, so native body scroll + the sticky breadcrumb keep
         // working.
         isMobile ? "min-h-dvh overflow-x-clip" : "flex h-dvh flex-col overflow-clip",
       )}
+      style={workspaceAppearance.style}
+      data-background-presence={workspaceAppearance.backgroundPresence}
+      data-glass-character={workspaceAppearance.glassCharacter}
+      >
+      <div
+        className="workspace-backdrop"
+        data-slot="workspace-backdrop"
+        aria-hidden="true"
+      />
+      <div
+        className="workspace-foreground flex min-h-0 flex-1 flex-col pt-(--sz-safe-top)"
+        data-slot="workspace-foreground"
       >
       <a
         href="#main-content"
@@ -565,9 +588,11 @@ export function Layout() {
         {isMobile ? (
           <div
             className={cn(
-              "fixed inset-y-0 left-0 z-50 flex flex-col overflow-hidden pt-(--sz-safe-top) transition-transform duration-100 ease-out",
+              "navigation-instrument navigation-instrument-mobile fixed inset-y-0 left-0 z-50 flex flex-col overflow-hidden pt-(--sz-safe-top) transition-transform duration-100 ease-out",
               sidebarOpen ? "translate-x-0" : "-translate-x-full"
             )}
+            data-slot="navigation-instrument"
+            data-mode="mobile"
           >
             <div className="flex flex-1 min-h-0 overflow-hidden">
               <div className="w-60 shrink-0 overflow-hidden">
@@ -606,7 +631,7 @@ export function Layout() {
           <SecondarySidebar>{secondarySidebar}</SecondarySidebar>
         ) : null}
 
-        <div className={cn("flex min-w-0 flex-col", isMobile ? "w-full" : "h-full flex-1")}>
+        <div className={cn("workspace-content-surface flex min-w-0 flex-col", isMobile ? "w-full" : "h-full flex-1")}>
           <div
             className={cn(
               isMobile && "sticky top-0 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/85",
@@ -658,6 +683,7 @@ export function Layout() {
       <NewAgentDialog />
       <KeyboardShortcutsCheatsheet open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
       <ToastViewport />
+      </div>
       </div>
     </GeneralSettingsProvider>
   );

@@ -2,6 +2,11 @@ import { z } from "zod";
 import {
   COMPANY_STATUSES,
   MAX_COMPANY_ATTACHMENT_MAX_BYTES,
+  WORKSPACE_BACKGROUND_KINDS,
+  WORKSPACE_BACKGROUND_POSITIONS,
+  WORKSPACE_BACKGROUND_PRESENCES,
+  WORKSPACE_BACKGROUND_PRESETS,
+  WORKSPACE_GLASS_CHARACTERS,
 } from "../constants.js";
 
 const logoAssetIdSchema = z.string().uuid().nullable().optional();
@@ -35,6 +40,12 @@ export const updateCompanySchema = createCompanySchema
     feedbackDataSharingTermsVersion: feedbackDataSharingTermsVersionSchema,
     brandColor: brandColorSchema,
     logoAssetId: logoAssetIdSchema,
+    workspaceBackgroundKind: z.enum(WORKSPACE_BACKGROUND_KINDS).optional(),
+    workspaceBackgroundPreset: z.enum(WORKSPACE_BACKGROUND_PRESETS).optional(),
+    workspaceBackgroundAssetId: z.string().uuid().nullable().optional(),
+    workspaceBackgroundPosition: z.enum(WORKSPACE_BACKGROUND_POSITIONS).optional(),
+    workspaceBackgroundPresence: z.enum(WORKSPACE_BACKGROUND_PRESENCES).optional(),
+    workspaceGlassCharacter: z.enum(WORKSPACE_GLASS_CHARACTERS).optional(),
     attachmentMaxBytes: attachmentMaxBytesSchema.optional(),
   });
 

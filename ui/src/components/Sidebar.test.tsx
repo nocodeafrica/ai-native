@@ -164,6 +164,10 @@ describe("Sidebar", () => {
     const root = await renderSidebar();
 
     const topSearchLink = container.querySelector('a[aria-label="Open search"]');
+    const sidebar = container.querySelector('aside[data-slot="navigation-sidebar"]');
+    expect(sidebar).not.toBeNull();
+    expect(sidebar?.className).not.toContain("bg-background");
+    expect(sidebar?.className).not.toContain("border-r");
     expect(topSearchLink?.getAttribute("href")).toBe("/search");
     const workLinks = [...container.querySelectorAll("nav a")].map((anchor) => anchor.textContent?.trim());
     expect(workLinks).not.toContain("Search");

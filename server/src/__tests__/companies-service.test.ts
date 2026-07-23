@@ -6,11 +6,13 @@ import {
   agentConfigRevisions,
   agents,
   agentWakeupRequests,
+  assets,
   builtInManagedResources,
   companies,
   companySkillVersions,
   companySkills,
   companyMemberships,
+  companyWorkspaceBackgrounds,
   createDb,
   heartbeatRunEvents,
   heartbeatRuns,
@@ -58,6 +60,8 @@ describeEmbeddedPostgres("companyService", () => {
     await db.delete(agents);
     await db.delete(principalPermissionGrants);
     await db.delete(companyMemberships);
+    await db.delete(companyWorkspaceBackgrounds);
+    await db.delete(assets);
     await db.delete(companies);
   });
 
@@ -126,6 +130,93 @@ describeEmbeddedPostgres("companyService", () => {
     await reconcileBuiltInAgentsOnStartup(db);
     const afterReconcileRows = await db.select().from(agents).where(eq(agents.companyId, created.id));
     expect(afterReconcileRows.filter((row) => readBuiltInAgentMarker(row.metadata)?.key === "reflection-coach")).toHaveLength(1);
+  });
+
+  it("assigns and clears a same-company image as the workspace background", async () => {
+    const company = await companyService(db).create({ name: "Atmosphere Company" });
+    const [background] = await db
+      .insert(assets)
+      .values({
+        companyId: company.id,
+        provider: "local_disk",
+        objectKey: "assets/companies/workspace-background.webp",
+        contentType: "image/webp",
+        byteSize: 12,
+        sha256: "workspace-background-sha",
+        originalFilename: "workspace-background.webp",
+      })
+      .returning();
+
+    const updated = await companyService(db).update(company.id, {
+      workspaceBackgroundKind: "upload",
+      workspaceBackgroundAssetId: background!.id,
+      workspaceBackgroundPosition: "top-right",
+      workspaceBackgroundPresence: "vivid",
+      workspaceGlassCharacter: "clear",
+    });
+
+    expect(updated).toMatchObject({
+      workspaceBackgroundKind: "upload",
+      workspaceBackgroundAssetId: background!.id,
+      workspaceBackgroundUrl: `/api/assets/${background!.id}/content`,
+      workspaceBackgroundPosition: "top-right",
+      workspaceBackgroundPresence: "vivid",
+      workspaceGlassCharacter: "clear",
+    });
+    await expect(db.select().from(companyWorkspaceBackgrounds)).resolves.toHaveLength(1);
+
+    const cleared = await companyService(db).update(company.id, {
+      workspaceBackgroundKind: "none",
+      workspaceBackgroundAssetId: null,
+    });
+
+    expect(cleared).toMatchObject({
+      workspaceBackgroundKind: "none",
+      workspaceBackgroundAssetId: null,
+      workspaceBackgroundUrl: null,
+    });
+    await expect(db.select().from(companyWorkspaceBackgrounds)).resolves.toHaveLength(0);
+    await expect(db.select().from(assets).where(eq(assets.id, background!.id))).resolves.toHaveLength(0);
+  });
+
+  it("rejects foreign-company and non-image workspace background assets", async () => {
+    const company = await companyService(db).create({ name: "Primary Company" });
+    const foreignCompany = await companyService(db).create({ name: "Foreign Company" });
+    const [foreignImage, sameCompanyText] = await db
+      .insert(assets)
+      .values([
+        {
+          companyId: foreignCompany.id,
+          provider: "local_disk",
+          objectKey: "assets/companies/foreign-background.webp",
+          contentType: "image/webp",
+          byteSize: 12,
+          sha256: "foreign-background-sha",
+          originalFilename: "foreign-background.webp",
+        },
+        {
+          companyId: company.id,
+          provider: "local_disk",
+          objectKey: "assets/companies/not-an-image.txt",
+          contentType: "text/plain",
+          byteSize: 4,
+          sha256: "not-an-image-sha",
+          originalFilename: "not-an-image.txt",
+        },
+      ])
+      .returning();
+
+    await expect(companyService(db).update(company.id, {
+      workspaceBackgroundKind: "upload",
+      workspaceBackgroundAssetId: foreignImage!.id,
+    })).rejects.toMatchObject({ status: 422 });
+
+    await expect(companyService(db).update(company.id, {
+      workspaceBackgroundKind: "upload",
+      workspaceBackgroundAssetId: sameCompanyText!.id,
+    })).rejects.toMatchObject({ status: 422 });
+
+    await expect(db.select().from(companyWorkspaceBackgrounds)).resolves.toHaveLength(0);
   });
 
   it("archives companies by pausing runnable agents and cancelling active runs", async () => {

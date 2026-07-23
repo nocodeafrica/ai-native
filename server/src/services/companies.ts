@@ -3,6 +3,7 @@ import type { Db } from "@paperclipai/db";
 import {
   companies,
   companyLogos,
+  companyWorkspaceBackgrounds,
   assets,
   agents,
   agentApiKeys,
@@ -145,14 +146,23 @@ export function companyService(db: Db) {
     feedbackDataSharingTermsVersion: companies.feedbackDataSharingTermsVersion,
     brandColor: companies.brandColor,
     logoAssetId: companyLogos.assetId,
+    workspaceBackgroundKind: companies.workspaceBackgroundKind,
+    workspaceBackgroundPreset: companies.workspaceBackgroundPreset,
+    workspaceBackgroundAssetId: companyWorkspaceBackgrounds.assetId,
+    workspaceBackgroundPosition: companies.workspaceBackgroundPosition,
+    workspaceBackgroundPresence: companies.workspaceBackgroundPresence,
+    workspaceGlassCharacter: companies.workspaceGlassCharacter,
     createdAt: companies.createdAt,
     updatedAt: companies.updatedAt,
   };
 
-  function enrichCompany<T extends { logoAssetId: string | null }>(company: T) {
+  function enrichCompany<T extends { logoAssetId: string | null; workspaceBackgroundAssetId: string | null }>(company: T) {
     return {
       ...company,
       logoUrl: company.logoAssetId ? `/api/assets/${company.logoAssetId}/content` : null,
+      workspaceBackgroundUrl: company.workspaceBackgroundAssetId
+        ? `/api/assets/${company.workspaceBackgroundAssetId}/content`
+        : null,
     };
   }
 
@@ -203,7 +213,8 @@ export function companyService(db: Db) {
     return database
       .select(companySelection)
       .from(companies)
-      .leftJoin(companyLogos, eq(companyLogos.companyId, companies.id));
+      .leftJoin(companyLogos, eq(companyLogos.companyId, companies.id))
+      .leftJoin(companyWorkspaceBackgrounds, eq(companyWorkspaceBackgrounds.companyId, companies.id));
   }
 
   function deriveIssuePrefixBase(name: string) {
@@ -280,7 +291,10 @@ export function companyService(db: Db) {
 
     update: async (
       id: string,
-      data: Partial<typeof companies.$inferInsert> & { logoAssetId?: string | null },
+      data: Partial<typeof companies.$inferInsert> & {
+        logoAssetId?: string | null;
+        workspaceBackgroundAssetId?: string | null;
+      },
       actor: CompanyActivityActor = SYSTEM_COMPANY_ACTOR,
     ) => {
       const result = await db.transaction(async (tx) => {
@@ -289,7 +303,7 @@ export function companyService(db: Db) {
           .then((rows) => rows[0] ?? null);
         if (!existing) return null;
 
-        const { logoAssetId, ...companyPatch } = data;
+        const { logoAssetId, workspaceBackgroundAssetId, ...companyPatch } = data;
         const willReactivate = existing.status !== "active" && companyPatch.status === "active";
         const willArchive = existing.status !== "archived" && companyPatch.status === "archived";
 
@@ -302,6 +316,21 @@ export function companyService(db: Db) {
           if (!nextLogoAsset) throw notFound("Logo asset not found");
           if (nextLogoAsset.companyId !== existing.id) {
             throw unprocessable("Logo asset must belong to the same company");
+          }
+        }
+
+        if (workspaceBackgroundAssetId !== undefined && workspaceBackgroundAssetId !== null) {
+          const nextBackgroundAsset = await tx
+            .select({ id: assets.id, companyId: assets.companyId, contentType: assets.contentType })
+            .from(assets)
+            .where(eq(assets.id, workspaceBackgroundAssetId))
+            .then((rows) => rows[0] ?? null);
+          if (!nextBackgroundAsset) throw notFound("Workspace background asset not found");
+          if (nextBackgroundAsset.companyId !== existing.id) {
+            throw unprocessable("Workspace background asset must belong to the same company");
+          }
+          if (!nextBackgroundAsset.contentType.startsWith("image/")) {
+            throw unprocessable("Workspace background asset must be an image");
           }
         }
 
@@ -356,9 +385,38 @@ export function companyService(db: Db) {
           await tx.delete(assets).where(eq(assets.id, existing.logoAssetId));
         }
 
+        if (workspaceBackgroundAssetId === null) {
+          await tx.delete(companyWorkspaceBackgrounds).where(eq(companyWorkspaceBackgrounds.companyId, id));
+        } else if (workspaceBackgroundAssetId !== undefined) {
+          await tx
+            .insert(companyWorkspaceBackgrounds)
+            .values({
+              companyId: id,
+              assetId: workspaceBackgroundAssetId,
+            })
+            .onConflictDoUpdate({
+              target: companyWorkspaceBackgrounds.companyId,
+              set: {
+                assetId: workspaceBackgroundAssetId,
+                updatedAt: new Date(),
+              },
+            });
+        }
+
+        if (
+          workspaceBackgroundAssetId !== undefined
+          && existing.workspaceBackgroundAssetId
+          && existing.workspaceBackgroundAssetId !== workspaceBackgroundAssetId
+        ) {
+          await tx.delete(assets).where(eq(assets.id, existing.workspaceBackgroundAssetId));
+        }
+
         const [hydrated] = await hydrateCompanySpend([{
           ...updated,
           logoAssetId: logoAssetId === undefined ? existing.logoAssetId : logoAssetId,
+          workspaceBackgroundAssetId: workspaceBackgroundAssetId === undefined
+            ? existing.workspaceBackgroundAssetId
+            : workspaceBackgroundAssetId,
         }], tx);
 
         const shouldLogReactivation = willReactivate &&

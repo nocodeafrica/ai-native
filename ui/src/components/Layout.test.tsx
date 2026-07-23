@@ -293,6 +293,11 @@ describe("Layout", () => {
     await flushReact();
 
     expect(mockHealthApi.get).toHaveBeenCalled();
+    const backdrop = container.querySelector('[data-slot="workspace-backdrop"]');
+    expect(backdrop).not.toBeNull();
+    expect(backdrop?.getAttribute("aria-hidden")).toBe("true");
+    expect(container.querySelectorAll('[data-slot="workspace-backdrop"]')).toHaveLength(1);
+    expect(container.querySelector('[data-slot="workspace-foreground"]')).not.toBeNull();
     expect(container.textContent).toContain("Breadcrumbs");
     expect(container.textContent).toContain("Outlet content");
     expect(container.textContent).not.toContain("Company rail");

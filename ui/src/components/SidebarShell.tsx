@@ -117,6 +117,7 @@ export function SidebarShell({
   const reservedWidth = !open ? 0 : collapsed ? SIDEBAR_RAIL_WIDTH : expandedWidth;
   const panelWidth = !open ? 0 : collapsed && !peeking ? SIDEBAR_RAIL_WIDTH : expandedWidth;
   const isOverlay = panelWidth > reservedWidth;
+  const mode = !open ? "hidden" : collapsed ? (peeking ? "peek" : "rail") : "expanded";
 
   // The drag handle can only resize the expanded width, so it is disabled while
   // collapsed (the rail width is a fixed constant, not user-resizable).
@@ -198,16 +199,16 @@ export function SidebarShell({
     <div className={cn("relative h-full shrink-0", className)} style={reservedStyle}>
       <div
         className={cn(
-          "absolute inset-y-0 left-0 flex flex-col overflow-hidden",
+          "navigation-instrument absolute inset-y-0 left-0 flex flex-col overflow-hidden",
           // Open/close is instant (PAP-10676): no width transition so the rail and
           // expanded states snap without any sliding motion.
           // Overlay styling only while the panel is wider than its reserved
           // spacer (i.e. peeking) so it floats above content without reflow.
-          isOverlay
-            ? "z-30 border-r border-border bg-background shadow-lg"
-            : "z-0",
+          isOverlay ? "z-30" : "z-0",
         )}
         style={panelStyle}
+        data-slot="navigation-instrument"
+        data-mode={mode}
         data-sidebar-overlay={isOverlay ? "" : undefined}
         onMouseEnter={onPanelMouseEnter}
         onMouseLeave={onPanelMouseLeave}

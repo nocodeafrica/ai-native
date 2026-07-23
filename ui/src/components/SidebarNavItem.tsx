@@ -119,18 +119,19 @@ export function SidebarNavItem({
       to={to}
       state={SIDEBAR_SCROLL_RESET_STATE}
       end={end}
+      data-slot="sidebar-nav-item"
       aria-label={railAriaLabel}
+      aria-current={active ? "page" : undefined}
       onClick={() => { if (isMobile) setSidebarOpen(false); }}
       className={({ isActive }) =>
         cn(
-          // One rhythm and one inset pill highlight: mx-2 floats the row off
-          // the sidebar edges, rounded-lg matches the card anchor, px-2 gives
-          // the icon breathing room inside the pill. Rows with hover menus
-          // (agents/projects) reserve extra right padding via className.
-          "flex items-center gap-2.5 mx-2 rounded-lg px-2 py-1.5 pointer-coarse:py-1 text-(length:--text-compact) font-medium transition-colors",
+          // Geometry stays identical between expanded and rail modes. The
+          // named material class owns neutral hover/selected/focus light; route
+          // status colors remain reserved for the badges and live indicators.
+          "sidebar-nav-item flex items-center gap-2.5 mx-2 rounded-lg px-2 py-1.5 pointer-coarse:py-1 text-(length:--text-compact) font-medium",
           (active ?? isActive)
-            ? "bg-accent text-foreground"
-            : "text-foreground/80 hover:bg-accent/50 hover:text-foreground",
+            ? "sidebar-nav-item--selected text-foreground"
+            : "text-foreground/80",
           className,
         )
       }

@@ -44,6 +44,11 @@ import {
   ROUTINE_STATUSES,
   ROUTINE_TRIGGER_KINDS,
   ROUTINE_TRIGGER_SIGNING_MODES,
+  WORKSPACE_BACKGROUND_KINDS,
+  WORKSPACE_BACKGROUND_POSITIONS,
+  WORKSPACE_BACKGROUND_PRESENCES,
+  WORKSPACE_BACKGROUND_PRESETS,
+  WORKSPACE_GLASS_CHARACTERS,
   deriveProjectUrlKey,
   envConfigSchema,
   issueCommentAuthorTypeSchema,
@@ -1707,6 +1712,10 @@ function filterPortableExtensionYaml(yaml: string, selectedFiles: Set<string>) {
       delete companySection.logoPath;
       delete companySection.logo;
     }
+    const backgroundPath = asString(companySection.workspaceBackgroundPath);
+    if (backgroundPath && !selectedFiles.has(backgroundPath)) {
+      delete companySection.workspaceBackgroundPath;
+    }
   }
 
   const sidebarOrder = normalizePortableSidebarOrder(parsed.sidebar);
@@ -1942,6 +1951,12 @@ const YAML_KEY_PRIORITY = [
   "capabilities",
   "brandColor",
   "logoPath",
+  "workspaceBackgroundKind",
+  "workspaceBackgroundPreset",
+  "workspaceBackgroundPath",
+  "workspaceBackgroundPosition",
+  "workspaceBackgroundPresence",
+  "workspaceGlassCharacter",
   "adapter",
   "runtime",
   "permissions",
@@ -2665,6 +2680,22 @@ function buildManifestFromPackageFiles(
       description: asString(companyFrontmatter.description),
       brandColor: asString(paperclipCompany.brandColor),
       logoPath: asString(paperclipCompany.logoPath) ?? asString(paperclipCompany.logo),
+      workspaceBackgroundKind: WORKSPACE_BACKGROUND_KINDS.includes(asString(paperclipCompany.workspaceBackgroundKind) as typeof WORKSPACE_BACKGROUND_KINDS[number])
+        ? asString(paperclipCompany.workspaceBackgroundKind) as typeof WORKSPACE_BACKGROUND_KINDS[number]
+        : "preset",
+      workspaceBackgroundPreset: WORKSPACE_BACKGROUND_PRESETS.includes(asString(paperclipCompany.workspaceBackgroundPreset) as typeof WORKSPACE_BACKGROUND_PRESETS[number])
+        ? asString(paperclipCompany.workspaceBackgroundPreset) as typeof WORKSPACE_BACKGROUND_PRESETS[number]
+        : "ainative-ambient",
+      workspaceBackgroundPath: asString(paperclipCompany.workspaceBackgroundPath),
+      workspaceBackgroundPosition: WORKSPACE_BACKGROUND_POSITIONS.includes(asString(paperclipCompany.workspaceBackgroundPosition) as typeof WORKSPACE_BACKGROUND_POSITIONS[number])
+        ? asString(paperclipCompany.workspaceBackgroundPosition) as typeof WORKSPACE_BACKGROUND_POSITIONS[number]
+        : "center",
+      workspaceBackgroundPresence: WORKSPACE_BACKGROUND_PRESENCES.includes(asString(paperclipCompany.workspaceBackgroundPresence) as typeof WORKSPACE_BACKGROUND_PRESENCES[number])
+        ? asString(paperclipCompany.workspaceBackgroundPresence) as typeof WORKSPACE_BACKGROUND_PRESENCES[number]
+        : "balanced",
+      workspaceGlassCharacter: WORKSPACE_GLASS_CHARACTERS.includes(asString(paperclipCompany.workspaceGlassCharacter) as typeof WORKSPACE_GLASS_CHARACTERS[number])
+        ? asString(paperclipCompany.workspaceGlassCharacter) as typeof WORKSPACE_GLASS_CHARACTERS[number]
+        : "balanced",
       attachmentMaxBytes:
         typeof paperclipCompany.attachmentMaxBytes === "number" && Number.isFinite(paperclipCompany.attachmentMaxBytes)
           ? Math.max(1, Math.floor(paperclipCompany.attachmentMaxBytes))
@@ -2697,6 +2728,9 @@ function buildManifestFromPackageFiles(
   const warnings: string[] = [];
   if (manifest.company?.logoPath && !normalizedFiles[manifest.company.logoPath]) {
     warnings.push(`Referenced company logo file is missing from package: ${manifest.company.logoPath}`);
+  }
+  if (manifest.company?.workspaceBackgroundPath && !normalizedFiles[manifest.company.workspaceBackgroundPath]) {
+    warnings.push(`Referenced workspace background file is missing from package: ${manifest.company.workspaceBackgroundPath}`);
   }
   for (const agentPath of agentPaths) {
     const markdownRaw = readPortableTextFile(normalizedFiles, agentPath);
@@ -3270,6 +3304,21 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
         warnings.push(`Failed to fetch company logo ${companyLogoPath} from GitHub: ${err instanceof Error ? err.message : String(err)}`);
       }
     }
+    const workspaceBackgroundPath = resolved.manifest.company?.workspaceBackgroundPath;
+    if (workspaceBackgroundPath && !resolved.files[workspaceBackgroundPath]) {
+      const repoPath = [parsed.basePath, workspaceBackgroundPath].filter(Boolean).join("/");
+      try {
+        const binary = await fetchBinary(
+          resolveRawGitHubUrl(parsed.hostname, parsed.owner, parsed.repo, ref, repoPath),
+        );
+        resolved.files[workspaceBackgroundPath] = bufferToPortableBinaryFile(
+          binary,
+          inferContentTypeFromPath(workspaceBackgroundPath),
+        );
+      } catch (err) {
+        warnings.push(`Failed to fetch workspace background ${workspaceBackgroundPath} from GitHub: ${err instanceof Error ? err.message : String(err)}`);
+      }
+    }
     resolved.warnings.unshift(...warnings);
     return resolved;
   }
@@ -3297,6 +3346,7 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
     const requestedSidebarOrder = normalizePortableSidebarOrder(input.sidebarOrder);
     const rootPath = normalizeAgentUrlKey(company.name) ?? "company-package";
     let companyLogoPath: string | null = null;
+    let workspaceBackgroundPath: string | null = null;
 
     const managedResourceRows = typeof (db as { select?: unknown }).select === "function"
       ? await db
@@ -3599,6 +3649,26 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
       }
     }
 
+    if (include.company && company.workspaceBackgroundAssetId) {
+      if (!storage) {
+        warnings.push("Skipped workspace background from export because storage is unavailable.");
+      } else {
+        const backgroundAsset = await assetRecords.getById(company.workspaceBackgroundAssetId);
+        if (!backgroundAsset) {
+          warnings.push(`Skipped workspace background ${company.workspaceBackgroundAssetId} because the asset record was not found.`);
+        } else {
+          try {
+            const object = await storage.getObject(company.id, backgroundAsset.objectKey);
+            const body = await streamToBuffer(object.stream);
+            workspaceBackgroundPath = `images/workspace-background${resolveCompanyLogoExtension(backgroundAsset.contentType, backgroundAsset.originalFilename)}`;
+            files[workspaceBackgroundPath] = bufferToPortableBinaryFile(body, backgroundAsset.contentType);
+          } catch (err) {
+            warnings.push(`Failed to export workspace background ${company.workspaceBackgroundAssetId}: ${err instanceof Error ? err.message : String(err)}`);
+          }
+        }
+      }
+    }
+
     const paperclipAgentsOut: Record<string, Record<string, unknown>> = {};
     const paperclipProjectsOut: Record<string, Record<string, unknown>> = {};
     const paperclipTasksOut: Record<string, Record<string, unknown>> = {};
@@ -3895,6 +3965,12 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
         company: stripEmptyValues({
           brandColor: company.brandColor ?? null,
           logoPath: companyLogoPath,
+          workspaceBackgroundKind: company.workspaceBackgroundKind,
+          workspaceBackgroundPreset: company.workspaceBackgroundPreset,
+          workspaceBackgroundPath,
+          workspaceBackgroundPosition: company.workspaceBackgroundPosition,
+          workspaceBackgroundPresence: company.workspaceBackgroundPresence,
+          workspaceGlassCharacter: company.workspaceGlassCharacter,
           attachmentMaxBytes: company.attachmentMaxBytes,
           requireBoardApprovalForNewAgents: company.requireBoardApprovalForNewAgents ? true : undefined,
           feedbackDataSharingEnabled: company.feedbackDataSharingEnabled ? true : undefined,
@@ -4455,6 +4531,21 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
         name: companyName,
         description: include.company ? (sourceManifest.company?.description ?? null) : null,
         brandColor: include.company ? (sourceManifest.company?.brandColor ?? null) : null,
+        workspaceBackgroundKind: include.company
+          ? (sourceManifest.company?.workspaceBackgroundKind ?? "preset")
+          : "preset",
+        workspaceBackgroundPreset: include.company
+          ? (sourceManifest.company?.workspaceBackgroundPreset ?? "ainative-ambient")
+          : "ainative-ambient",
+        workspaceBackgroundPosition: include.company
+          ? (sourceManifest.company?.workspaceBackgroundPosition ?? "center")
+          : "center",
+        workspaceBackgroundPresence: include.company
+          ? (sourceManifest.company?.workspaceBackgroundPresence ?? "balanced")
+          : "balanced",
+        workspaceGlassCharacter: include.company
+          ? (sourceManifest.company?.workspaceGlassCharacter ?? "balanced")
+          : "balanced",
         attachmentMaxBytes: include.company
           ? (sourceManifest.company?.attachmentMaxBytes ?? undefined)
           : undefined,
@@ -4496,6 +4587,11 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
           name: sourceManifest.company.name,
           description: sourceManifest.company.description,
           brandColor: sourceManifest.company.brandColor,
+          workspaceBackgroundKind: sourceManifest.company.workspaceBackgroundKind,
+          workspaceBackgroundPreset: sourceManifest.company.workspaceBackgroundPreset,
+          workspaceBackgroundPosition: sourceManifest.company.workspaceBackgroundPosition,
+          workspaceBackgroundPresence: sourceManifest.company.workspaceBackgroundPresence,
+          workspaceGlassCharacter: sourceManifest.company.workspaceGlassCharacter,
           attachmentMaxBytes: sourceManifest.company.attachmentMaxBytes ?? undefined,
           requireBoardApprovalForNewAgents: sourceManifest.company.requireBoardApprovalForNewAgents,
           feedbackDataSharingEnabled: sourceManifest.company.feedbackDataSharingEnabled,
@@ -4585,6 +4681,53 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
                 targetCompany = updated ?? targetCompany;
               } catch (err) {
                 warnings.push(`Failed to import company logo ${logoPath}: ${err instanceof Error ? err.message : String(err)}`);
+              }
+            }
+          }
+        }
+
+        const backgroundPath = sourceManifest.company?.workspaceBackgroundPath ?? null;
+        if (!backgroundPath) {
+          const cleared = await companies.update(targetCompany.id, { workspaceBackgroundAssetId: null });
+          targetCompany = cleared ?? targetCompany;
+        } else {
+          const backgroundFile = plan.source.files[backgroundPath];
+          if (!backgroundFile) {
+            warnings.push(`Skipped workspace background import because ${backgroundPath} is missing from the package.`);
+          } else if (!storage) {
+            warnings.push("Skipped workspace background import because storage is unavailable.");
+          } else {
+            const contentType = isPortableBinaryFile(backgroundFile)
+              ? (backgroundFile.contentType ?? inferContentTypeFromPath(backgroundPath))
+              : inferContentTypeFromPath(backgroundPath);
+            if (!contentType?.startsWith("image/") || contentType === "image/svg+xml") {
+              warnings.push(`Skipped workspace background import for ${backgroundPath} because the file type is unsupported.`);
+            } else {
+              try {
+                const body = portableFileToBuffer(backgroundFile, backgroundPath);
+                const stored = await storage.putFile({
+                  companyId: targetCompany.id,
+                  namespace: "assets/workspace-backgrounds",
+                  originalFilename: path.posix.basename(backgroundPath),
+                  contentType,
+                  body,
+                });
+                const createdAsset = await assetRecords.create(targetCompany.id, {
+                  provider: stored.provider,
+                  objectKey: stored.objectKey,
+                  contentType: stored.contentType,
+                  byteSize: stored.byteSize,
+                  sha256: stored.sha256,
+                  originalFilename: stored.originalFilename,
+                  createdByAgentId: null,
+                  createdByUserId: actorUserId ?? null,
+                });
+                const updated = await companies.update(targetCompany.id, {
+                  workspaceBackgroundAssetId: createdAsset.id,
+                });
+                targetCompany = updated ?? targetCompany;
+              } catch (err) {
+                warnings.push(`Failed to import workspace background ${backgroundPath}: ${err instanceof Error ? err.message : String(err)}`);
               }
             }
           }

@@ -275,7 +275,7 @@ Paperclip is a full control plane, not a wrapper. Before you build any of this y
 </td>
 <td>
 
-**Company Portability** — Export and import entire organizations — agents, skills, projects, routines, and issues — with secret scrubbing and collision handling. One deployment, many companies, complete data isolation.
+**Company Portability** — Export and import entire organizations — agents, skills, projects, routines, issues, and workspace appearance — with secret scrubbing and collision handling. One deployment, many companies, complete data isolation.
 
 </td>
 </tr>
