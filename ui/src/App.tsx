@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/i18n";
 import { Layout } from "./components/Layout";
 import { ConferenceRoomChatGate } from "./components/ConferenceRoomChatGate";
-import { PipelinesExperimentalGate } from "./components/PipelinesExperimentalGate";
 import { CasesExperimentalGate } from "./components/CasesExperimentalGate";
 import { AppsExperimentalGate } from "./components/AppsExperimentalGate";
 import { Cases } from "./pages/Cases";
@@ -199,35 +198,35 @@ function boardRoutes() {
       />
       <Route
         path="review-queue"
-        element={<PipelinesExperimentalGate><ReviewQueue /></PipelinesExperimentalGate>}
+        element={<ReviewQueue />}
       />
       <Route
         path="learnings"
-        element={<PipelinesExperimentalGate><Learnings /></PipelinesExperimentalGate>}
+        element={<Learnings />}
       />
       <Route
         path="pipelines"
-        element={<PipelinesExperimentalGate><Pipelines /></PipelinesExperimentalGate>}
+        element={<Pipelines />}
       />
       <Route
         path="pipelines/:pipelineId"
-        element={<PipelinesExperimentalGate><Pipelines /></PipelinesExperimentalGate>}
+        element={<Pipelines />}
       />
       <Route
         path="pipelines/:pipelineId/add"
-        element={<PipelinesExperimentalGate><Pipelines /></PipelinesExperimentalGate>}
+        element={<Pipelines />}
       />
       <Route
         path="pipelines/:pipelineId/settings"
-        element={<PipelinesExperimentalGate><PipelineSettings /></PipelinesExperimentalGate>}
+        element={<PipelineSettings />}
       />
       <Route
         path="pipelines/:pipelineId/items/:caseId"
-        element={<PipelinesExperimentalGate><PipelineItemDetail /></PipelinesExperimentalGate>}
+        element={<PipelineItemDetail />}
       />
       <Route
         path="pipelines/:pipelineId/cases/:caseId"
-        element={<PipelinesExperimentalGate><PipelineItemLegacyRedirect /></PipelinesExperimentalGate>}
+        element={<PipelineItemLegacyRedirect />}
       />
       <Route path="routines/:routineId" element={<RoutineDetail />} />
       <Route path="routines/:routineId/:section" element={<RoutineDetail />} />

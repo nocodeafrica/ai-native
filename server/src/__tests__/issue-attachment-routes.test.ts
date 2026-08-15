@@ -4,6 +4,7 @@ import express from "express";
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { StorageService } from "../storage/types.js";
+import { HTML_ATTACHMENT_CONTENT_SECURITY_POLICY } from "../attachment-types.js";
 
 const mockIssueService = vi.hoisted(() => ({
   getById: vi.fn(),
@@ -481,9 +482,13 @@ describe("issue attachment routes", () => {
     expect(mockIssueService.createAttachment).not.toHaveBeenCalled();
   });
 
-  it("serves html attachments as downloads with nosniff", async () => {
-    const storage = createStorageService();
-    mockIssueService.getAttachmentById.mockResolvedValue(makeAttachment("text/html", "report.html"));
+  it("serves html attachments inline inside a locked-down CSP sandbox", async () => {
+    const body = Buffer.from("<!doctype html><h1>QA report</h1>");
+    const storage = createStorageService(body);
+    mockIssueService.getAttachmentById.mockResolvedValue({
+      ...makeAttachment("text/html", "report.html"),
+      byteSize: body.length,
+    });
 
     const app = await createApp(storage);
     const res = await request(app)
@@ -492,11 +497,26 @@ describe("issue attachment routes", () => {
       .parse(parseBinaryResponse);
 
     expect(res.status).toBe(200);
-    expect([
-      undefined,
-      'attachment; filename="report.html"',
-    ]).toContain(res.headers["content-disposition"]);
+    expect(res.headers["content-type"]).toContain("text/html");
+    expect(res.headers["content-disposition"]).toBe('inline; filename="report.html"');
+    expect(res.headers["content-security-policy"]).toBe(HTML_ATTACHMENT_CONTENT_SECURITY_POLICY);
     expect(res.headers["x-content-type-options"]).toBe("nosniff");
+    expect(Buffer.from(res.body).toString("utf8")).toBe(body.toString("utf8"));
+  });
+
+  it("forces html attachment downloads when requested", async () => {
+    const storage = createStorageService();
+    mockIssueService.getAttachmentById.mockResolvedValue(makeAttachment("text/html", "report.html"));
+
+    const app = await createApp(storage);
+    const res = await request(app)
+      .get("/api/attachments/attachment-1/content?download=1")
+      .buffer(true)
+      .parse(parseBinaryResponse);
+
+    expect(res.status).toBe(200);
+    expect(res.headers["content-disposition"]).toBe('attachment; filename="report.html"');
+    expect(res.headers["content-security-policy"]).toBe(HTML_ATTACHMENT_CONTENT_SECURITY_POLICY);
   });
 
   it("serves arbitrary binary attachments as downloads with nosniff", async () => {

@@ -119,7 +119,7 @@ export function PipelineLivenessBanner({
               <code className="rounded-sm bg-black/10 px-1 py-0.5 text-xs font-medium dark:bg-white/10">
                 {view.permissionKey}
               </code>{" "}
-              on the target pipeline.
+              on the target workflow.
             </p>
           ) : null}
           {view.blockerLink || view.automationLink ? (

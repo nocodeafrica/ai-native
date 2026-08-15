@@ -702,6 +702,25 @@ export interface IssueWatchdog extends IssueWatchdogSummary {
   updatedByRunId: string | null;
 }
 
+export interface IssueLinkedWorkflowCaseSummary {
+  id: string;
+  caseKey: string | null;
+  title: string;
+  status: "open" | "done" | "cancelled";
+  role: "origin" | "conversation" | "work" | "automation";
+  pipeline: {
+    id: string;
+    key: string;
+    name: string;
+  };
+  stage: {
+    id: string;
+    key: string;
+    name: string;
+    kind: string;
+  };
+}
+
 export interface Issue {
   id: string;
   companyId: string;
@@ -769,6 +788,7 @@ export interface Issue {
   goal?: Goal | null;
   currentExecutionWorkspace?: ExecutionWorkspace | null;
   workProducts?: IssueWorkProduct[];
+  linkedCases?: IssueLinkedWorkflowCaseSummary[];
   mentionedProjects?: Project[];
   myLastTouchAt?: Date | null;
   lastExternalCommentAt?: Date | null;

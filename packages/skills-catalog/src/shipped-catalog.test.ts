@@ -14,6 +14,11 @@ const EXPECTED_BUNDLED_KEYS = [
   "paperclipai/bundled/product/wireframe",
   "paperclipai/bundled/quality/qa-acceptance",
   "paperclipai/bundled/software-development/github-pr-workflow",
+  "paperclipai/bundled/website-production/website-creative-director",
+  "paperclipai/bundled/website-production/website-deploy-and-verify",
+  "paperclipai/bundled/website-production/website-design-and-build",
+  "paperclipai/bundled/website-production/website-independent-qa",
+  "paperclipai/bundled/website-production/website-truth-and-assets",
 ];
 
 const EXPECTED_OPTIONAL_KEYS = [
@@ -67,6 +72,85 @@ function readFrontmatterDescription(markdown: string): string | null {
 }
 
 describe("shipped skills catalog", () => {
+  it("ships revision-bound website deployment verification", () => {
+    const skill = readFileSync(
+      path.join(
+        REPO_ROOT,
+        "packages/skills-catalog/catalog/bundled/website-production/website-deploy-and-verify/SKILL.md",
+      ),
+      "utf8",
+    );
+
+    expect(skill).toContain("explicit owner approval");
+    expect(skill).toContain("exact QA-passed commit");
+    expect(skill).toContain("Deployment Receipt");
+    expect(skill).toContain("rollback");
+  });
+
+  it("ships independent website QA with repair routing", () => {
+    const skill = readFileSync(
+      path.join(
+        REPO_ROOT,
+        "packages/skills-catalog/catalog/bundled/website-production/website-independent-qa/SKILL.md",
+      ),
+      "utf8",
+    );
+
+    expect(skill).toContain("must not be the builder");
+    expect(skill).toContain("anti-slop");
+    expect(skill).toContain("return to Design and Build");
+    expect(skill).toContain("return to the Creative Director");
+    expect(skill).toContain("Three unsuccessful repair cycles");
+  });
+
+  it("ships the blueprint-faithful multi-page build contract", () => {
+    const skill = readFileSync(
+      path.join(
+        REPO_ROOT,
+        "packages/skills-catalog/catalog/bundled/website-production/website-design-and-build/SKILL.md",
+      ),
+      "utf8",
+    );
+
+    expect(skill).toContain("approved Blueprint revision");
+    expect(skill).toContain("multi-page");
+    expect(skill).toContain("real logo");
+    expect(skill).toContain("production asset manifest");
+    expect(skill).toContain("deviation log");
+  });
+
+  it("ships one integrated website blueprint contract", () => {
+    const skill = readFileSync(
+      path.join(
+        REPO_ROOT,
+        "packages/skills-catalog/catalog/bundled/website-production/website-creative-director/SKILL.md",
+      ),
+      "utf8",
+    );
+
+    expect(skill).toContain("information architecture, content, imagery, and visual direction together");
+    expect(skill).toContain("visual rhythm");
+    expect(skill).toContain("every production image");
+    expect(skill).toContain("Human approval");
+    expect(skill).toContain("toolkit-unconstrained");
+  });
+
+  it("ships the website truth and asset evidence contract", () => {
+    const skill = readFileSync(
+      path.join(
+        REPO_ROOT,
+        "packages/skills-catalog/catalog/bundled/website-production/website-truth-and-assets/SKILL.md",
+      ),
+      "utf8",
+    );
+
+    expect(skill).toContain("URL-level provenance");
+    expect(skill).toContain("Visually inspect every candidate image");
+    expect(skill).toContain("Do not invent");
+    expect(skill).toContain("Truth Pack");
+    expect(skill).toContain("image contact sheet");
+  });
+
   it("ships the summarize-status streaming protocol", () => {
     const skill = readFileSync(
       path.join(

@@ -2,6 +2,10 @@
 
 This project can run fully in local dev without setting up PostgreSQL manually.
 
+## Workflow compatibility naming
+
+The fork presents the former experimental Pipelines UI as Workflows and exposes it by default. Keep `/pipelines` routes, `pipeline_*` database names, permission keys, query/storage keys, and internal TypeScript symbols stable unless a separately approved migration changes the wire/storage contract. New user-facing copy should say Workflow or Workflows.
+
 ## Deployment Modes
 
 For mode definitions and intended CLI behavior, see `doc/DEPLOYMENT-MODES.md`.

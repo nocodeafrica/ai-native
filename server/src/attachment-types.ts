@@ -46,6 +46,20 @@ export const DEFAULT_ALLOWED_TYPES: readonly string[] = [
 
 export const DEFAULT_ATTACHMENT_CONTENT_TYPE = "application/octet-stream";
 export const SVG_CONTENT_TYPE = "image/svg+xml";
+export const HTML_CONTENT_TYPE = "text/html";
+export const HTML_ATTACHMENT_CONTENT_SECURITY_POLICY = [
+  "sandbox",
+  "default-src 'none'",
+  "script-src 'none'",
+  "connect-src 'none'",
+  "object-src 'none'",
+  "frame-src 'none'",
+  "form-action 'none'",
+  "base-uri 'none'",
+  "img-src data:",
+  "style-src 'unsafe-inline'",
+  "font-src data:",
+].join("; ");
 export const GENERIC_ATTACHMENT_CONTENT_TYPES: readonly string[] = [
   "application/octet-stream",
   "binary/octet-stream",
@@ -58,6 +72,7 @@ export const INLINE_ATTACHMENT_TYPES: readonly string[] = [
   "text/markdown",
   "application/json",
   "text/csv",
+  HTML_CONTENT_TYPE,
   "video/mp4",
   "video/webm",
   "video/quicktime",

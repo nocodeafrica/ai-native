@@ -11,7 +11,18 @@ import {
   readStoredPipelineBoardGroupBy,
   readPipelineStageAutomationAssigneeAgentId,
   writeStoredPipelineBoardGroupBy,
+  WORKFLOW_PRODUCT_COPY,
 } from "./Pipelines";
+
+describe("workflow product terminology", () => {
+  it("uses Workflow while keeping compatible pipeline routes", () => {
+    expect(WORKFLOW_PRODUCT_COPY.plural).toBe("Workflows");
+    expect(WORKFLOW_PRODUCT_COPY.empty).toBe("No workflows yet.");
+    expect(pipelineStageAutomationSettingsHref("pipeline-1", "stage-1")).toBe(
+      "/pipelines/pipeline-1/settings?stage=stage-1&section=instructions",
+    );
+  });
+});
 
 describe("groupCasesByBuiltFor", () => {
   it("groups items by the parent case shown as Built for", () => {

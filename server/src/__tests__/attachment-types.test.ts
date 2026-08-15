@@ -193,9 +193,12 @@ describe("isInlineAttachmentContentType", () => {
     }
   });
 
-  it("rejects potentially unsafe or binary download types", () => {
-    expect(INLINE_ATTACHMENT_TYPES).not.toContain("text/html");
-    expect(isInlineAttachmentContentType("text/html")).toBe(false);
+  it("allows sandboxed HTML previews", () => {
+    expect(INLINE_ATTACHMENT_TYPES).toContain("text/html");
+    expect(isInlineAttachmentContentType("text/html")).toBe(true);
+  });
+
+  it("rejects binary download types", () => {
     expect(isInlineAttachmentContentType("application/zip")).toBe(false);
   });
 });

@@ -113,6 +113,7 @@ import {
   hasVisibleMonitorSurface,
 } from "../components/IssueMonitorBanner";
 import { IssueScheduledRetryCard } from "../components/IssueScheduledRetryCard";
+import { WorkflowReviewCard } from "../components/WorkflowReviewCard";
 import { IssueProperties } from "../components/IssueProperties";
 import { PauseAffectsSummaryView } from "../components/interrupt-handoff/InterruptHandoffViews";
 import { computePauseAffectsSummary } from "../lib/interrupt-handoff";
@@ -4693,6 +4694,8 @@ export function IssueDetail() {
         onBrowseFiles={fileViewerEnabled ? () => setFileViewerPromptOpen(true) : undefined}
         onOpenFileByPath={fileViewerEnabled ? () => setFileViewerPromptOpen(true) : undefined}
       />
+
+      <WorkflowReviewCard issueId={issue.id} linkedCases={issue.linkedCases} />
 
       {fileViewerEnabled && issue.workProducts && issue.workProducts.length > 0 && (() => {
         const workProductsWithFileRefs = issue.workProducts
